@@ -1,8 +1,27 @@
 #include "bot.hpp"
 #include <stdio.h>
+#include <string>
 #include <string.h>
 #include <iostream>
 #include <time.h>
+
+void bot::login(){
+    char data[4096]  = "PASS ";
+    char data2[4096] = "NICK ";
+    char data3[4096] = "JOIN #";
+    strcat(data,oauth);
+    strcat(data2,nick);
+    strcat(data3,nick);
+    send(socket_peer,data,strlen(data),0);
+    send(socket_peer,data2,strlen(data2),0);
+    send(socket_peer,data3,strlen(data3),0);
+}
+
+void bot::pong(){
+    char data[4096]  = "PONG\n";
+    int bytes_sent = send(socket_peer,data,strlen(data),0);
+    if(bytes_sent > 1 && devMode) std::cout << "PONG sent\n";
+}
 
 void bot::loop(){
     while(true){
@@ -21,11 +40,18 @@ void bot::loop(){
         if(FD_ISSET(socket_peer, &reads)){
             char read[4096];
             int bytes_received = recv(socket_peer, read, 4096, 0);
+            //TAKES CARE OF MESSAGE
+            if (strcmp(read,"PING")==0) pong();
+            else msgCheck(read);
+            //CHECK IF CONNECTION CLOSED
             if(bytes_received < 1){
                 std::cout << "Connection closed by peer\n";
                 break;
             }
-            std::cout << "Received" << bytes_received << bytes_received << read << std::endl;
+            //PRINT
+            if(devMode){
+                std::cout << "Received" << bytes_received << std::endl << read << std::endl;
+            }
         }
 
         //CHECK PEER_SOCKET TO SEE IF IT HAS ANYTHING TO SEND
@@ -34,19 +60,20 @@ void bot::loop(){
         #else
         if(FD_ISSET(0, &reads)){
         #endif
-
             char read[4096];
             if(!fgets(read, 4096, stdin)) break;
-            std::cout << "Sending:" << read;
             int bytes_sent = send(socket_peer, read, strlen(read), 0);
-            std::cout << "Sent " << bytes_sent << " bytes\n";
+            if(devMode){
+                std::cout << "Sent " << bytes_sent << " bytes\n";
+            }
         }
     }
 }
 
 bot::bot(){
-    if(getaddrinfo(serv_addr,port, &hints, &peer_address)){
+    for(int i=0;(getaddrinfo(serv_addr,port, &hints, &peer_address)) && i<5; i++){
         std::cout << stderr << "getaddressinfo() failed\n" << GETSOCKETERRNO() << std::endl;
+        std::cout << "Trying again. Please wait.\n";
     }
 
     memset(&hints,0,sizeof(hints));
@@ -76,4 +103,26 @@ bot::bot(){
     //SET TIMEOUT ON CONNECTION
     timeout.tv_sec = 0;
     timeout.tv_usec = 100000;
+
+    login();
+}
+
+void bot::msgCheck(char msgRecv[4096]){
+
+    struct msg latestMsg = msgManager(msgRecv);
+    if(latestMsg.text[0] == '!'){
+    }
+    else{
+    }
+    return;
+}
+
+struct msg bot::msgManager(char msgRecv[4096]){
+    if(devMode) std::cout << "msgManager()\n";
+    struct msg latestMsg;
+    std::string aux;
+    aux = msgRecv;
+    latestMsg.user = aux.substr(1,aux.find('!')-1);
+    latestMsg.text = aux.substr(aux.find("#jpelizza :")+11,aux.find('\n'));
+    return latestMsg;
 }

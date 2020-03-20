@@ -18,6 +18,8 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <errno.h>
+#include <iostream>
+#include <string>
 
 #endif
 
@@ -35,26 +37,37 @@
 #endif
 
 
+struct msg{
+    std::string text;
+    std::string user;
+};
+
 /*botClass*/
 class bot{
     public: //variables
     SOCKET socket_peer;
     struct addrinfo hints;
     struct addrinfo *peer_address;
-    fd_set reads;
     struct timeval timeout;
+    fd_set reads;
     time_t pingTimer;
     //Timer pingTimer = Timer();
     char address_buffer[100], service_buffer[100];
     const char* serv_addr = "irc.chat.twitch.tv";
     const char* port = "6667";
 
-    const char* aoth = "oauth:###";
-    const char* nick = "channelName";
+    const char* oauth = "oauth:####\n";
+    const char* nick = "channelName\n";
+
+    bool isConn = false;
+
+    bool devMode = true;
 
     public: //functions
     bot();
     void loop();
-    int ping();
+    void pong();
     void login();
+    void msgCheck(char recv[4096]);
+    struct msg msgManager(char recv[4096]);
 };
