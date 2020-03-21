@@ -1,4 +1,4 @@
-#include "bot.cpp"
+#include "bot.hpp"
 
 int main(void){
 

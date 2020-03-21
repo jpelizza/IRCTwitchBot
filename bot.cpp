@@ -1,12 +1,7 @@
 #include "bot.hpp"
-#include <stdio.h>
-#include <string>
-#include <string.h>
-#include <iostream>
-#include <time.h>
+
 
 bot::bot(){
-    sleep(1);
     for(int i=0;(getaddrinfo(serv_addr,port, &hints, &peer_address)) && i<5; i++){
         std::cout << stderr << "getaddressinfo() failed\n" << GETSOCKETERRNO() << std::endl;
         std::cout << "Trying again. Please wait.\n";
@@ -84,7 +79,6 @@ void bot::loop(){
             //TAKES CARE OF MESSAGE
             if (strcmp(read,"PING")==0) pong();
             else if(aux.find(channel) != std::string::npos){
-                if(devMode) std::cout << "PRIVMSG" << std::endl;
                 msgCheck(read);
             }
             //CHECK IF CONNECTION CLOSED
@@ -96,7 +90,7 @@ void bot::loop(){
             memset(&read, 0, sizeof(read));
             //PRINT
             if(devMode){
-                std::cout << "Received" << bytes_recv << std::endl << read << std::endl;
+                std::cout << "Received" << bytes_recv << "bytes, message is:" << std::endl << read << std::endl;
             }
         }
 
@@ -117,10 +111,10 @@ void bot::loop(){
 }
 
 void bot::msgCheck(char *msgRecv){
-    std::cout << "MsgCheck()\n";
     struct msg latestMsg = msgManager(msgRecv);
+
     if(latestMsg.text[0] == '!'){
-        if(latestMsg.text.compare("!dice")){
+        if(latestMsg.text.compare("!dice")==0){
             Cdice(latestMsg);
         }
     }
@@ -137,19 +131,22 @@ struct msg bot::msgManager(char *msgRecv){
     aux = msgRecv;
     latestMsg.user = aux.substr(1,aux.find('!')-1);
     latestMsg.text = aux.substr(aux.find("PRIVMSG #")+19);
-    if(devMode)std::cout << latestMsg.text << std::endl;
+    //string fix
+    latestMsg.text.pop_back();latestMsg.text.pop_back();
+    
     return latestMsg;
 
 }
 
 void bot::Cdice(struct msg latestMsg){
-    std::cout << "Cdice()" << std::endl;
-    std::string aux = "PRIVMSG " + std::string(channel) + " :@" + latestMsg.user + " rolled " +
+    std::string msg = "PRIVMSG " + std::string(channel) + " :@" + latestMsg.user + " rolled " +
                         std::to_string((rand()%20)+1) + "\n";
-    std::cout << aux.c_str() << std::endl;
-    std::cout << strlen(aux.c_str()) << " " << aux.length() << std::endl;
-    int bytes_sent = send(socket_peer,aux.c_str(),strlen(aux.c_str()),0);
-    std::cout << bytes_sent;
-    return;
+    sendprivmsg(msg);
 }
 
+void bot::sendprivmsg(std::string text){
+    int bytes_sent = send(socket_peer,text.c_str(),strlen(text.c_str()),0);
+    if(bytes_sent<1){
+        std::cout << "ERROR TRYING TO SEND MESSAGE\n";
+    }
+}

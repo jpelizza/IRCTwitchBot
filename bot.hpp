@@ -1,6 +1,7 @@
 /*sock_init.cpp*/
 
-
+#ifndef BOT
+#define BOT
 
 #if defined(_WIN32)
 #ifndef _WIN32_WINNT
@@ -19,7 +20,8 @@
 #include <unistd.h>
 #include <errno.h>
 #include <iostream>
-#include <string>
+#include <string.h>
+#include <stdio.h>
 
 #endif
 
@@ -35,7 +37,6 @@
 #define SOCKET int
 #define GETSOCKETERRNO() (errno)
 #endif
-
 
 struct msg{
     std::string text;
@@ -61,7 +62,7 @@ class bot{
     const char* channel = "#channel";
 
     bool isConn = false;
-    bool devMode = true;
+    bool devMode = false;
 
     //std::string privmsg = "PRIVMSG ";
     int bytes_recv = 0;
@@ -77,5 +78,8 @@ class bot{
     void msgCheck(char *recv);
     struct msg msgManager(char *recv);
     //COMANDS
+    void sendprivmsg(std::string);
     void Cdice(struct msg);
 };
+
+#endif // BOT
