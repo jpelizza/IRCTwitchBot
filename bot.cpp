@@ -75,10 +75,9 @@ void bot::loop(){
         if(FD_ISSET(socket_peer, &reads)){
             char read[4096];
             bytes_recv = recv(socket_peer, read, 4096, 0);
-            std::string aux = read;
             //TAKES CARE OF MESSAGE
             if (strcmp(read,"PING")==0) pong();
-            else if(aux.find(channel) != std::string::npos){
+            else if(std::string(read).find(channel) != std::string::npos){
                 msgCheck(read);
             }
             //CHECK IF CONNECTION CLOSED
@@ -119,18 +118,16 @@ void bot::msgCheck(char *msgRecv){
         }
     }
     else{
-        std::cout << "Não entendi mensagem\n";
+        std::cout << "Message is not a command\n";
     }
     return;
 }
 
 struct msg bot::msgManager(char *msgRecv){
     if(devMode) std::cout << "msgManager()\n";
-    struct msg latestMsg;
-    std::string aux;
-    aux = msgRecv;
-    latestMsg.user = aux.substr(1,aux.find('!')-1);
-    latestMsg.text = aux.substr(aux.find("PRIVMSG #")+19);
+
+    latestMsg.user = std::string(msgRecv).substr(1,std::string(msgRecv).find('!')-1);
+    latestMsg.text = std::string(msgRecv).substr(std::string(msgRecv).find("PRIVMSG #")+19);
     //string fix
     latestMsg.text.pop_back();latestMsg.text.pop_back();
     
@@ -139,7 +136,7 @@ struct msg bot::msgManager(char *msgRecv){
 }
 
 void bot::Cdice(struct msg latestMsg){
-    std::string msg = "PRIVMSG " + std::string(channel) + " :@" + latestMsg.user + " rolled " +
+    std::string msg = privmsg + std::string(channel) + " :@" + latestMsg.user + " rolled " +
                         std::to_string((rand()%20)+1) + "\n";
     sendprivmsg(msg);
 }

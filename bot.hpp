@@ -64,8 +64,9 @@ class bot{
     bool isConn = false;
     bool devMode = false;
 
-    //std::string privmsg = "PRIVMSG ";
+    std::string privmsg = "PRIVMSG ";
     int bytes_recv = 0;
+    struct msg latestMsg;
 
     public: //functions
     //CONSTRUCTOR
