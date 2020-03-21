@@ -56,18 +56,26 @@ class bot{
     const char* serv_addr = "irc.chat.twitch.tv";
     const char* port = "6667";
 
-    const char* oauth = "oauth:####\n";
-    const char* nick = "channelName\n";
+    const char* oauth = "oauth:###\n";
+    const char* nick = "nick\n";
+    const char* channel = "#channel";
 
     bool isConn = false;
-
     bool devMode = true;
 
+    //std::string privmsg = "PRIVMSG ";
+    int bytes_recv = 0;
+
     public: //functions
+    //CONSTRUCTOR
     bot();
+    //MAINTENANCE
     void loop();
     void pong();
     void login();
-    void msgCheck(char recv[4096]);
-    struct msg msgManager(char recv[4096]);
+    //MESSAGES
+    void msgCheck(char *recv);
+    struct msg msgManager(char *recv);
+    //COMANDS
+    void Cdice(struct msg);
 };
