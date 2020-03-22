@@ -62,7 +62,7 @@ class bot{
     const char* channel = "#channel";
 
     bool isConn = false;
-    bool devMode = false;
+    bool devMode = true;
 
     std::string privmsg = "PRIVMSG ";
     int bytes_recv = 0;

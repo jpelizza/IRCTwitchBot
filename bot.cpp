@@ -118,7 +118,7 @@ void bot::msgCheck(char *msgRecv){
         }
     }
     else{
-        std::cout << "Message is not a command\n";
+        std::cout << "Não entendi mensagem\n";
     }
     return;
 }
@@ -127,7 +127,7 @@ struct msg bot::msgManager(char *msgRecv){
     if(devMode) std::cout << "msgManager()\n";
 
     latestMsg.user = std::string(msgRecv).substr(1,std::string(msgRecv).find('!')-1);
-    latestMsg.text = std::string(msgRecv).substr(std::string(msgRecv).find("PRIVMSG #")+19);
+    latestMsg.text = std::string(msgRecv).substr(std::string(msgRecv).find(" :")+2);
     //string fix
     latestMsg.text.pop_back();latestMsg.text.pop_back();
     
