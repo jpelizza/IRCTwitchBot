@@ -55,7 +55,12 @@ void bot::login(){
 void bot::pong(){
     char data[4096]  = "PONG\n";
     int bytes_sent = send(socket_peer,data,strlen(data),0);
-    if(bytes_sent > 1 && devMode) std::cout << "PONG sent\n";
+    if(bytes_sent > 1) {
+        #ifdef DEVMODE
+            std::cout << "PONG sent\n";   
+        #endif
+    }
+        
 }
 
 void bot::loop(){
@@ -88,9 +93,9 @@ void bot::loop(){
             //CLEAN CHAR ARRAY
             memset(&read, 0, sizeof(read));
             //PRINT
-            if(devMode){
+            #ifdef DEVMODE
                 std::cout << "Received" << bytes_recv << "bytes, message is:" << std::endl << read << std::endl;
-            }
+            #endif
         }
 
         //CHECK PEER_SOCKET TO SEE IF IT HAS ANYTHING TO SEND
@@ -102,9 +107,9 @@ void bot::loop(){
             char read[4096];
             if(!fgets(read, 4096, stdin)) break;
             int bytes_sent = send(socket_peer, read, strlen(read), 0);
-            if(devMode){
+            #ifdef DEVMODE
                 std::cout << "Sent " << bytes_sent << " bytes\n";
-            }
+            #endif
         }
     }
 }
@@ -124,7 +129,9 @@ void bot::msgCheck(char *msgRecv){
 }
 
 struct msg bot::msgManager(char *msgRecv){
-    if(devMode) std::cout << "msgManager()\n";
+    #ifdef DEVMODE
+        std::cout << "msgManager()\n";
+    #endif
 
     latestMsg.user = std::string(msgRecv).substr(1,std::string(msgRecv).find('!')-1);
     latestMsg.text = std::string(msgRecv).substr(std::string(msgRecv).find(" :")+2);
