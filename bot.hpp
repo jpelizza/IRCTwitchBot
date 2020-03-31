@@ -21,6 +21,7 @@
 #include <errno.h>
 #include <iostream>
 #include <string.h>
+#include <vector>
 #include <stdio.h>
 #include "vlc.hpp"
 
@@ -60,9 +61,6 @@ class bot{
     struct addrinfo *peer_address;
     struct timeval timeout;
     fd_set reads;
-    
-    //TIME VARIABLES
-    time_t pingTimer;
 
     //TWITCH ADDRS & PORT
     const char* serv_addr = "irc.chat.twitch.tv";
@@ -73,10 +71,21 @@ class bot{
     bool chatMode =true;
 
     //USEFULNESS
-    double minutes;
-    std::string privmsg = "PRIVMSG ";
     int bytes_recv = 0;
-    struct msg latestMsg;
+    
+    //MESSAGES
+        std::string privmsg = "PRIVMSG ";
+        struct msg latestMsg;
+    
+    //RAFFLE
+        bool raffleIsOn;
+        std::vector<std::string> raffleList;
+        int raffleSeconds;
+
+    //TIME VARIABLES
+    time_t pingTimer;
+    time_t raffleTimer;
+
 
     vlc player;
 
@@ -96,6 +105,10 @@ class bot{
     void Cdice(struct msg);
     void Cdick(struct msg);
     void Crequest(struct msg);
+    void Craffle(struct msg);
+
+    //Aux
+    void checkOnRaffle();
 };
 
 #endif // BOT

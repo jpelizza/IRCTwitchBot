@@ -1,3 +1,7 @@
+#ifndef VLC
+#define VLC
+
+
 #include <unistd.h>
 #include <vlc/vlc.h>
 #include <iostream>
@@ -24,3 +28,4 @@ class vlc{
 
 };
 
+#endif // VLC

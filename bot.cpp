@@ -25,11 +25,12 @@ bot::bot(){
 
     //SET TIMEOUT ON CONNECTION
     timeout.tv_sec = 0;
-    timeout.tv_usec = 10000;
+    timeout.tv_usec = 100000;
 
-    //time(&pingTimer);
-    //Initilize Rand
     srand (time(NULL));
+
+    raffleIsOn = false;
+
     login();
 }
 
@@ -107,8 +108,8 @@ void bot::loop(){
                 std::cout << "Sent " << bytes_sent << " bytes\n";
             }
         }
-
         player.checkOnPlayer();
+        if(raffleIsOn) checkOnRaffle();
     }
 }
 
@@ -124,6 +125,9 @@ void bot::msgCheck(char *msgRecv){
         }
         else if(latestMsg.text.substr(0,4).compare("!add")==0){
             Crequest(latestMsg);
+        }
+        else if(latestMsg.text.substr(0,4).compare("!raf")==0){
+            Craffle(latestMsg);
         }
     }
     else{
@@ -156,8 +160,40 @@ void bot::Cdick(struct msg latestMsg){
         sendprivmsg(msg);
 }
 
+void bot::Craffle(struct msg latestMsg){
+    std::cout << "Craf()" << std::endl;
+    if(!raffleIsOn){
+        std::cout << "starting raffle" << std::endl;
+        time(&raffleTimer);
+        raffleIsOn = true;
+        raffleSeconds = atoi(latestMsg.text.substr(4).c_str());
+    }
+    else{
+        std::cout << "Entrei pra reffle" << std::endl;
+        raffleList.push_back(latestMsg.user);
+    }
+}
+
+void bot::checkOnRaffle(){
+    std::cout << difftime(time(NULL),raffleTimer) << " : " << raffleSeconds << std::endl;
+    if(difftime(time(NULL),raffleTimer) > raffleSeconds){
+        raffleIsOn = false;
+
+        if(raffleList.size() < 1) return;
+
+        std::string msg = privmsg + std::string(channel) + " :@" +
+                            raffleList.at(rand()%raffleList.size()) +
+                            " won the raffle! CONGRATULATIONS!\n";
+
+        sendprivmsg(msg);
+
+        while(raffleList.size() > 0){
+            raffleList.erase(raffleList.begin());
+        }
+    }
+}
+
 void bot::Crequest(struct msg latestMsg){
-    std::cout << "Crequest()" << std::endl;
     player.addToRequestList(latestMsg.text.substr(4));
 }
 
