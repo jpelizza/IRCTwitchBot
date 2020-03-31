@@ -24,10 +24,10 @@ bot::bot(){
     }
 
     //SET TIMEOUT ON CONNECTION
-    timeout.tv_sec = 360;
-    timeout.tv_usec = 100000;
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 10000;
 
-    time(&pingTimer);
+    //time(&pingTimer);
     //Initilize Rand
     srand (time(NULL));
     login();
@@ -59,6 +59,7 @@ void bot::ping(){
 }
 
 void bot::loop(){
+    std::cout << "loop" << std::endl;
     while(true){
         //SETUP READS WITH SOCKET
         FD_ZERO(&reads);
@@ -106,13 +107,9 @@ void bot::loop(){
                 std::cout << "Sent " << bytes_sent << " bytes\n";
             }
         }
+
+        player.checkOnPlayer();
     }
-
-    // std::cout << (difftime(pingTimer,time(NULL))) << std::endl;
-    // if((difftime(pingTimer,time(NULL)))/60 > 4){
-    //     ping();
-    // }
-
 }
 
 void bot::msgCheck(char *msgRecv){
@@ -122,9 +119,15 @@ void bot::msgCheck(char *msgRecv){
         if(latestMsg.text.compare("!dice")==0){
             Cdice(latestMsg);
         }
+        else if(latestMsg.text.compare("!pau")==0){
+            Cdick(latestMsg);
+        }
+        else if(latestMsg.text.substr(0,4).compare("!add")==0){
+            Crequest(latestMsg);
+        }
     }
     else{
-        std::cout << "Não entendi mensagem\n";
+        return;
     }
     return;
 }
@@ -146,6 +149,16 @@ void bot::Cdice(struct msg latestMsg){
     std::string msg = privmsg + std::string(channel) + " :@" + latestMsg.user + " rolled " +
                         std::to_string((rand()%20)+1) + "\n";
     sendprivmsg(msg);
+}
+void bot::Cdick(struct msg latestMsg){
+    std::string msg = privmsg + std::string(channel) + " :@" + latestMsg.user + " tem " +
+                            std::to_string((rand()%20)+1) + "cm de pinto\n";
+        sendprivmsg(msg);
+}
+
+void bot::Crequest(struct msg latestMsg){
+    std::cout << "Crequest()" << std::endl;
+    player.addToRequestList(latestMsg.text.substr(4));
 }
 
 void bot::sendprivmsg(std::string text){

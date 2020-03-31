@@ -22,6 +22,7 @@
 #include <iostream>
 #include <string.h>
 #include <stdio.h>
+#include "vlc.hpp"
 
 #endif
 
@@ -49,9 +50,9 @@ class bot{
 
         
     //BOT'S INFO
-    const char* oauth = "oauth:###\n";
-    const char* nick = "nick\n";
-    const char* channel = "#channel";
+    const char* oauth = "oauth:ix2241wmji7l1hep0tukf8ktvlu16n\n";
+    const char* nick = "jpelizza\n";
+    const char* channel = "#jpelizza";
     
     //NETOWORK VARIABLES
     SOCKET socket_peer;
@@ -77,6 +78,8 @@ class bot{
     int bytes_recv = 0;
     struct msg latestMsg;
 
+    vlc player;
+
     public: //functions
     //CONSTRUCTOR
     bot();
@@ -91,6 +94,8 @@ class bot{
     //COMANDS
     void sendprivmsg(std::string);
     void Cdice(struct msg);
+    void Cdick(struct msg);
+    void Crequest(struct msg);
 };
 
 #endif // BOT
