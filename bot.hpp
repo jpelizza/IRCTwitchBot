@@ -51,9 +51,9 @@ class bot{
 
         
     //BOT'S INFO
-    const char* oauth = "oauth:ix2241wmji7l1hep0tukf8ktvlu16n\n";
-    const char* nick = "jpelizza\n";
-    const char* channel = "#jpelizza";
+    const char* oauth = "oauth:###\n";
+    const char* nick = "nick\n";
+    const char* channel = "#channel";
     
     //NETOWORK VARIABLES
     SOCKET socket_peer;
