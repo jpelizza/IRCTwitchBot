@@ -1,4 +1,4 @@
-#include "bot.hpp"
+#include "../include/bot.hpp"
 
 
 bot::bot(){
@@ -30,21 +30,33 @@ bot::bot(){
     srand (time(NULL));
 
     raffleIsOn = false;
+    
 
     login();
 }
 
 void bot::login(){
-    char data[4096]  = "PASS ";
-    char data2[4096] = "NICK ";
-    char data3[4096] = "JOIN ";
-    strcat(data,oauth);
-    strcat(data2,nick);
-    strcat(data3,channel);
-    strcat(data3,"\n");
-    send(socket_peer,data,strlen(data),0);
-    send(socket_peer,data2,strlen(data2),0);
-    send(socket_peer,data3,strlen(data3),0);
+    
+    Env *env = new Env();
+
+    char pass[4096]  = "PASS ";
+    char nick[4096] = "NICK ";
+    char join[4096] = "JOIN ";
+
+    strcat(pass,(env->getValue("OAUTH")).c_str());
+    strcat(pass,"\n");
+    strcat(nick,(env->getValue("NICK")).c_str());
+    strcat(nick,"\n");
+
+    strcat(join,(env->getValue("CHANNEL")).c_str());
+
+    strcpy(this->channel,(env->getValue("CHANNEL").c_str()));
+
+    strcat(join,"\n");
+
+    send(socket_peer,pass,strlen(pass),0);
+    send(socket_peer,nick,strlen(nick),0);
+    send(socket_peer,join,strlen(join),0);
 }
 
 void bot::pong(){
@@ -60,7 +72,6 @@ void bot::ping(){
 }
 
 void bot::loop(){
-    std::cout << "loop" << std::endl;
     while(true){
         //SETUP READS WITH SOCKET
         FD_ZERO(&reads);
@@ -81,6 +92,9 @@ void bot::loop(){
             if (std::string(read).substr(0,4).compare("PING")==0) pong();
             else if(std::string(read).find(channel) != std::string::npos){
                 msgCheck(read);
+            }
+            else{
+                std::cout<<this->channel<<std::endl;
             }
             //CHECK IF CONNECTION CLOSED
             if(bytes_recv < 1){
