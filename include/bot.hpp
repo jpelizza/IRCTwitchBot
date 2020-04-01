@@ -24,6 +24,7 @@
 #include <vector>
 #include <stdio.h>
 #include "vlc.hpp"
+#include "env.hpp"
 
 #endif
 
@@ -51,9 +52,7 @@ class bot{
 
         
     //BOT'S INFO
-    const char* oauth = "oauth:###\n";
-    const char* nick = "nick\n";
-    const char* channel = "#channel";
+    char* channel;
     
     //NETOWORK VARIABLES
     SOCKET socket_peer;

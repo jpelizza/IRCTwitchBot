@@ -1,4 +1,4 @@
-#include "vlc.hpp"
+#include "../include/vlc.hpp"
 vlc::vlc(){
     inst = libvlc_new (0, NULL);
     state= -1;
