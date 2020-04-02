@@ -2,9 +2,17 @@
 
 
 bot::bot(){
-    if(getaddrinfo(serv_addr,port, &hints, &peer_address)){
-        std::cout << stderr << "getaddressinfo() failed\n" << GETSOCKETERRNO() << std::endl;
-        std::cout << "Trying again. Please wait.\n";
+    for(int i=0;i<10;i++){
+        try{
+            if(getaddrinfo(serv_addr,port, &hints, &peer_address)){
+                throw "Error trying to reach twitch's DNS\nTrying again in 5 seconds...";
+            }
+            else break;
+        }
+        catch(const char* error){
+            std::cout << error << std::endl;
+        }
+        sleep(5);
     }
 
     memset(&hints,0,sizeof(hints));
@@ -30,13 +38,10 @@ bot::bot(){
     srand (time(NULL));
 
     raffleIsOn = false;
-    
-
     login();
 }
 
 void bot::login(){
-    
     Env *env = new Env();
 
     char pass[4096]  = "PASS ";
@@ -47,11 +52,11 @@ void bot::login(){
     strcat(pass,"\n");
     strcat(nick,(env->getValue("NICK")).c_str());
     strcat(nick,"\n");
-
     strcat(join,(env->getValue("CHANNEL")).c_str());
-
-    strcpy(this->channel,(env->getValue("CHANNEL").c_str()));
-
+    
+    channel = env->getValue("CHANNEL");
+    privmsg = privmsg + std::string(channel) + std::string(" :");
+    
     strcat(join,"\n");
 
     send(socket_peer,pass,strlen(pass),0);
@@ -137,15 +142,18 @@ void bot::msgCheck(char *msgRecv){
         else if(latestMsg.text.compare("!pau")==0){
             Cdick(latestMsg);
         }
-        else if(latestMsg.text.substr(0,4).compare("!add")==0){
+        else if(!latestMsg.text.substr(0,4).compare("!add")){
             Crequest(latestMsg);
         }
-        else if(latestMsg.text.substr(0,4).compare("!raf")==0){
+        else if(!latestMsg.text.substr(0,4).compare("!raf")){
             Craffle(latestMsg);
         }
-    }
-    else{
-        return;
+        else if(!latestMsg.text.substr(0,5).compare("!skip")){
+            Cskip(latestMsg);
+        }
+        else if(!latestMsg.text.substr(0,4).compare("!vol")){
+            Cvolume(latestMsg);
+        }
     }
     return;
 }
@@ -164,40 +172,52 @@ struct msg bot::msgManager(char *msgRecv){
 }
 
 void bot::Cdice(struct msg latestMsg){
-    std::string msg = privmsg + std::string(channel) + " :@" + latestMsg.user + " rolled " +
-                        std::to_string((rand()%20)+1) + "\n";
+    msg = privmsg + "@" + latestMsg.user + " rolled " +
+                        std::to_string((rand()%20)+1);
+    std::cout << msg << std::endl;
     sendprivmsg(msg);
 }
 void bot::Cdick(struct msg latestMsg){
-    std::string msg = privmsg + std::string(channel) + " :@" + latestMsg.user + " tem " +
-                            std::to_string((rand()%20)+1) + "cm de pinto\n";
-        sendprivmsg(msg);
+    msg = privmsg + "@" + latestMsg.user + " tem " +
+                            std::to_string((rand()%20)+1) + "cm de pinto";
+    sendprivmsg(msg);
 }
-
 void bot::Craffle(struct msg latestMsg){
-    std::cout << "Craf()" << std::endl;
     if(!raffleIsOn){
-        std::cout << "starting raffle" << std::endl;
         time(&raffleTimer);
         raffleIsOn = true;
         raffleSeconds = atoi(latestMsg.text.substr(4).c_str());
     }
     else{
-        std::cout << "Entrei pra reffle" << std::endl;
         raffleList.push_back(latestMsg.user);
     }
 }
-
+void bot::Crequest(struct msg latestMsg){
+    if(!player.addToRequestList(latestMsg.text.substr(4))){
+        msg = privmsg + "@" + latestMsg.user + " Seu link foi negado pelo bot, por favor não usar playlist ou radio, obrigado!";
+        sendprivmsg(msg);
+    }
+    return;
+}
+void bot::Cskip(struct msg latestMsg){
+    if(latestMsg.user == "jpelizza" || latestMsg.user == "manakithegreat" || latestMsg.user == "utechhh" || latestMsg.user == "botucaplay" || latestMsg.user == "tteknahlowg"){
+        player.vlcSkip();
+    }
+}
+void bot::Cvolume(struct msg latestMsg){
+    if(latestMsg.user == "jpelizza" || latestMsg.user == "manakithegreat" || latestMsg.user == "utechhh" || latestMsg.user == "botucaplay" || latestMsg.user == "tteknahlowg"){
+        player.vlcChangeVolume(atoi(latestMsg.text.substr(4).c_str()));
+    }
+}
 void bot::checkOnRaffle(){
-    std::cout << difftime(time(NULL),raffleTimer) << " : " << raffleSeconds << std::endl;
     if(difftime(time(NULL),raffleTimer) > raffleSeconds){
         raffleIsOn = false;
 
         if(raffleList.size() < 1) return;
 
-        std::string msg = privmsg + std::string(channel) + " :@" +
+        msg = privmsg + std::string(channel) + " :@" +
                             raffleList.at(rand()%raffleList.size()) +
-                            " won the raffle! CONGRATULATIONS!\n";
+                            " won the raffle! CONGRATULATIONS!";
 
         sendprivmsg(msg);
 
@@ -206,12 +226,8 @@ void bot::checkOnRaffle(){
         }
     }
 }
-
-void bot::Crequest(struct msg latestMsg){
-    player.addToRequestList(latestMsg.text.substr(4));
-}
-
 void bot::sendprivmsg(std::string text){
+    text = text + "\n";
     int bytes_sent = send(socket_peer,text.c_str(),strlen(text.c_str()),0);
     if(bytes_sent<1){
         std::cout << "ERROR TRYING TO SEND MESSAGE\n";

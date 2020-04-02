@@ -7,9 +7,13 @@ Env::Env(){
     }
     this->parseFile();
     this->hasEmptyValue();
-    for(auto k: this->variables){
-        std::cout<<">>"<<k.first<<"->"<<k.second<<std::endl;
-    }
+    
+    //PRINTS KEY BE CAREFUL!
+
+    // for(auto k: this->variables){
+    //     std::cout<<">>"<<k.first<<"->"<<k.second<<std::endl;
+    // }
+
 }
 
 bool Env::fileExists(){
@@ -72,7 +76,7 @@ void Env::hasEmptyValue(){
 
 std::string Env::getValue(std::string key){
     for(auto k: this->variables){
-        if(k.first.compare(key)==0){
+        if(!k.first.compare(key)){
             return k.second;
         }
     }

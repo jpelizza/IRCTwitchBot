@@ -20,12 +20,14 @@ class vlc{
     int cont;
     public:
     vlc();
-    void addToRequestList(std::string);
+    bool checkDownload(std::string);
+    bool addToRequestList(std::string);
     void vlcPlay(std::string);
     static void vlcDownload(std::string);
     void checkOnPlayer();
     bool exists(std::string);
-
+    void vlcSkip();
+    void vlcChangeVolume(int);
 };
 
 #endif // VLC

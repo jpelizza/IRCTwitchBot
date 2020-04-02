@@ -52,7 +52,7 @@ class bot{
 
         
     //BOT'S INFO
-    char* channel;
+    std::string channel;
     
     //NETOWORK VARIABLES
     SOCKET socket_peer;
@@ -73,6 +73,7 @@ class bot{
     int bytes_recv = 0;
     
     //MESSAGES
+        std::string msg;
         std::string privmsg = "PRIVMSG ";
         struct msg latestMsg;
     
@@ -99,12 +100,16 @@ class bot{
     //MESSAGES
     void msgCheck(char *recv);
     struct msg msgManager(char *recv);
-    //COMANDS
+    //TEXT COMANDS
     void sendprivmsg(std::string);
     void Cdice(struct msg);
     void Cdick(struct msg);
-    void Crequest(struct msg);
     void Craffle(struct msg);
+    //VLC COMMANDS
+    void Cskip(struct msg);
+    void Crequest(struct msg);
+    void Cvolume(struct msg);
+    
 
     //Aux
     void checkOnRaffle();

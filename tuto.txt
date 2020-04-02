@@ -1,0 +1,3 @@
+A regex pra parsear a URL do youtube é essa:
+^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))
+(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$

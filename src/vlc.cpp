@@ -1,13 +1,32 @@
 #include "../include/vlc.hpp"
+
 vlc::vlc(){
     inst = libvlc_new (0, NULL);
     state= -1;
     cont = 0;
 }
 
-void vlc::addToRequestList(std::string request){
-    requestList.push_back(request);
-    return;
+bool vlc::checkDownload(std::string url){
+    if(url.find("list=") == std::string::npos && url.find("radio") == std::string::npos && url.find("youtube.be") == std::string::npos && url.find("youtube.com") != std::string::npos){
+        return true;
+    }
+    else{
+        std::cout << "Check Download failed\n";
+        return false;
+    }
+    return false;
+}
+
+bool vlc::addToRequestList(std::string request){
+    if(checkDownload(request)){
+        std::cout << "Adding to request list\n";
+        std::thread dwnld(vlcDownload,request);
+        dwnld.detach();
+
+        requestList.push_back(request);
+        return true;
+    }
+    return false;
 }
 
 void vlc::checkOnPlayer(){
@@ -24,16 +43,26 @@ void vlc::checkOnPlayer(){
 }
 
 void vlc::vlcPlay(std::string url){
-    std::thread dwnld(vlcDownload,url);
-    dwnld.detach();
-    while(!exists(std::string("./music/") + url.substr(33))){
-        usleep(1000);
+
+    for(int i=0;!exists(std::string("./music/") + url.substr(url.find_last_of("/watch?v=")+1)) || i<5;i++){
+        std::cout << url.substr(url.find_last_of("/watch?v=")+1) << std::endl;
+        usleep(10000);
     }
-    m = libvlc_media_new_path (inst, (std::string("./music/") + url.substr(33)).c_str());
+    m = libvlc_media_new_path (inst, (std::string("./music/") + url.substr(url.find_last_of("/watch?v=")+1)).c_str());
     mp = libvlc_media_player_new_from_media (m);
     libvlc_media_release (m);
     libvlc_media_player_play (mp);
     state = libvlc_media_player_get_state(mp);
+    return;
+}
+
+void vlc::vlcSkip(){
+    libvlc_media_player_stop(mp);
+    return;
+}
+
+void vlc::vlcChangeVolume(int volume){
+    libvlc_audio_set_volume(mp,volume%100);
     return;
 }
 
@@ -43,7 +72,7 @@ bool vlc::exists(std::string name){
 }
 
 void vlc::vlcDownload(std::string url){
-    std::string command = "youtube-dl -o ./music/" + url.substr(33) + " " + url + " --format bestaudio --no-playlist";
+    std::string command = "youtube-dl -o ./music/" + url.substr(url.find_last_of("/watch?v=")+1) + " " + url + " --format bestaudio --no-playlist";
     system(command.c_str());
     return;
 }
