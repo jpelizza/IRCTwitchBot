@@ -94,7 +94,7 @@ void bot::loop(){
             char read[4096];
             bytes_recv = recv(socket_peer, read, 4096, 0);
             //TAKES CARE OF MESSAGE
-            if (std::string(read).substr(0,4).compare("PING")==0) pong();
+            if (!std::string(read).substr(0,4).compare("PING")) pong();
             else if(std::string(read).find(channel) != std::string::npos){
                 msgCheck(read);
             }
@@ -128,7 +128,7 @@ void bot::loop(){
             }
         }
         player.checkOnPlayer();
-        if(raffleIsOn) checkOnRaffle();
+        checkOnRaffle();
     }
 }
 
@@ -136,10 +136,10 @@ void bot::msgCheck(char *msgRecv){
     struct msg latestMsg = msgManager(msgRecv);
 
     if(latestMsg.text[0] == '!'){
-        if(latestMsg.text.compare("!dice")==0){
+        if(!latestMsg.text.compare("!dice")){
             Cdice(latestMsg);
         }
-        else if(latestMsg.text.compare("!pau")==0){
+        else if(!latestMsg.text.compare("!pau")){
             Cdick(latestMsg);
         }
         else if(!latestMsg.text.substr(0,4).compare("!add")){
@@ -148,7 +148,7 @@ void bot::msgCheck(char *msgRecv){
         else if(!latestMsg.text.substr(0,4).compare("!raf")){
             Craffle(latestMsg);
         }
-        else if(!latestMsg.text.substr(0,5).compare("!skip")){
+        else if(!latestMsg.text.compare("!skip")){
             Cskip(latestMsg);
         }
         else if(!latestMsg.text.substr(0,4).compare("!vol")){
@@ -210,7 +210,12 @@ void bot::Cvolume(struct msg latestMsg){
     }
 }
 void bot::checkOnRaffle(){
-    if(difftime(time(NULL),raffleTimer) > raffleSeconds){
+    
+    if(raffleIsOn==false){
+        return;
+    }
+
+    else if(difftime(time(NULL),raffleTimer) > raffleSeconds){
         raffleIsOn = false;
 
         if(raffleList.size() < 1) return;

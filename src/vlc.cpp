@@ -44,9 +44,8 @@ void vlc::checkOnPlayer(){
 
 void vlc::vlcPlay(std::string url){
 
-    for(int i=0;!exists(std::string("./music/") + url.substr(url.find_last_of("/watch?v=")+1)) || i<5;i++){
-        std::cout << url.substr(url.find_last_of("/watch?v=")+1) << std::endl;
-        usleep(10000);
+    for(int i=0;!(exists(std::string("./music/") + url.substr(url.find_last_of("/watch?v=")+1))) && i<10;i++){
+        usleep(100000);
     }
     m = libvlc_media_new_path (inst, (std::string("./music/") + url.substr(url.find_last_of("/watch?v=")+1)).c_str());
     mp = libvlc_media_player_new_from_media (m);
@@ -62,7 +61,7 @@ void vlc::vlcSkip(){
 }
 
 void vlc::vlcChangeVolume(int volume){
-    libvlc_audio_set_volume(mp,volume%100);
+    libvlc_audio_set_volume(mp,volume%101);
     return;
 }
 
@@ -72,7 +71,7 @@ bool vlc::exists(std::string name){
 }
 
 void vlc::vlcDownload(std::string url){
-    std::string command = "youtube-dl -o ./music/" + url.substr(url.find_last_of("/watch?v=")+1) + " " + url + " --format bestaudio --no-playlist";
+    std::string command = "youtube-dl -f 'bestaudio[filesize<15M]' -o ./music/" + url.substr(url.find_last_of("/watch?v=")+1) + " " + url + " --no-playlist --geo-bypass";
     system(command.c_str());
     return;
 }
