@@ -17,13 +17,11 @@ bool vlc::checkDownload(std::string url){
     return false;
 }
 
-bool vlc::addToRequestList(std::string request){
-    if(checkDownload(request)){
-        std::cout << "Adding to request list\n";
-        std::thread dwnld(vlcDownload,request);
+bool vlc::addToRequestList(std::string url){
+    if(checkDownload(url)){
+        std::thread dwnld(vlcDownload,url);
         dwnld.detach();
-
-        requestList.push_back(request);
+        requestList.push_back(url);
         return true;
     }
     return false;
