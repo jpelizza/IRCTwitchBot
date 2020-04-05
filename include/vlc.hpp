@@ -15,9 +15,16 @@ class vlc{
     libvlc_media_player_t *mp;
     libvlc_media_t *m;
 
+    //USEFUL
     std::list<std::string> requestList;
     int state;
     int cont;
+    public:
+    bool ableToPlay;
+
+
+
+
     public:
     vlc();
     bool checkDownload(std::string);

@@ -64,12 +64,13 @@ class bot{
     //TWITCH ADDRS & PORT
     const char* serv_addr = "irc.chat.twitch.tv";
     const char* port = "6667";
+    std::list<std::string> mods;
 
     //DEV INFO
     bool devMode = true;
     bool chatMode =true;
 
-    //USEFULNESS
+    //USEFUL
     int bytes_recv = 0;
     
     //MESSAGES
@@ -109,6 +110,8 @@ class bot{
     void Cskip(struct msg);
     void Crequest(struct msg);
     void Cvolume(struct msg);
+    void Cplay(struct msg);
+    void Cstop(struct msg);
     
 
     //Aux

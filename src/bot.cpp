@@ -132,6 +132,7 @@ void bot::loop(){
     }
 }
 
+
 void bot::msgCheck(char *msgRecv){
     struct msg latestMsg = msgManager(msgRecv);
 
@@ -142,14 +143,20 @@ void bot::msgCheck(char *msgRecv){
         else if(!latestMsg.text.compare("!pau")){
             Cdick(latestMsg);
         }
+        else if(!latestMsg.text.compare("!skip")){
+            Cskip(latestMsg);
+        }
+        else if(!latestMsg.text.compare("!stop")){
+            Cstop(latestMsg);
+        }
+        else if(!latestMsg.text.compare("!play")){
+            Cplay(latestMsg);
+        }
         else if(!latestMsg.text.substr(0,4).compare("!add")){
             Crequest(latestMsg);
         }
         else if(!latestMsg.text.substr(0,4).compare("!raf")){
             Craffle(latestMsg);
-        }
-        else if(!latestMsg.text.compare("!skip")){
-            Cskip(latestMsg);
         }
         else if(!latestMsg.text.substr(0,4).compare("!vol")){
             Cvolume(latestMsg);
@@ -187,6 +194,9 @@ void bot::Craffle(struct msg latestMsg){
         time(&raffleTimer);
         raffleIsOn = true;
         raffleSeconds = atoi(latestMsg.text.substr(4).c_str());
+        if(raffleSeconds>600){
+            raffleSeconds=600;
+        }
     }
     else{
         raffleList.push_back(latestMsg.user);
@@ -200,13 +210,23 @@ void bot::Crequest(struct msg latestMsg){
     return;
 }
 void bot::Cskip(struct msg latestMsg){
-    if(latestMsg.user == "jpelizza" || latestMsg.user == "manakithegreat" || latestMsg.user == "utechhh" || latestMsg.user == "botucaplay" || latestMsg.user == "tteknahlowg"){
+    if(latestMsg.user.find(channel)){
         player.vlcSkip();
     }
 }
 void bot::Cvolume(struct msg latestMsg){
-    if(latestMsg.user == "jpelizza" || latestMsg.user == "manakithegreat" || latestMsg.user == "utechhh" || latestMsg.user == "botucaplay" || latestMsg.user == "tteknahlowg"){
+    if(latestMsg.user.find(channel)){
         player.vlcChangeVolume(atoi(latestMsg.text.substr(4).c_str()));
+    }
+}
+void bot::Cplay(struct msg latestMsg){
+    if(latestMsg.user.find(channel)){
+        player.ableToPlay = true;
+    }
+}
+void bot::Cstop(struct msg latestMsg){
+    if(latestMsg.user.find(channel)){
+        player.ableToPlay = false;
     }
 }
 void bot::checkOnRaffle(){
