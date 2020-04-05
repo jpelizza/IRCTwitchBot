@@ -1,3 +1,4 @@
+Currently the dev branch only compiles on linux
 # IRCTwitchBot
 Twitch IRC bot written in C++ using Barkley's sockets with windows winsock support
 # IRC TWITC(++)H BOT
