@@ -112,10 +112,12 @@ class bot{
     void Cvolume(struct msg);
     void Cplay(struct msg);
     void Cstop(struct msg);
+    void Cgamer(struct msg);
     
 
     //Aux
     void checkOnRaffle();
+    bool isAdm(std::string);
 };
 
 #endif // BOT

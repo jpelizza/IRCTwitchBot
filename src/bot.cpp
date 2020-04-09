@@ -5,6 +5,7 @@ bot::bot(){
     memset(&hints,0,sizeof(hints));
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_family = AF_INET;
+    
     for(int i=0;i<5;i++){
         try{
             bytes_recv = getaddrinfo(serv_addr,port, &hints, &peer_address);
@@ -18,6 +19,7 @@ bot::bot(){
         }
         sleep(2);
     }
+    
     //INITIALIZING SOCKET
     socket_peer = socket(peer_address->ai_family,
     peer_address->ai_socktype, peer_address->ai_protocol);
@@ -34,9 +36,20 @@ bot::bot(){
     timeout.tv_sec = 0;
     timeout.tv_usec = 100000;
 
+    //STATUP
     srand (time(NULL));
-
     raffleIsOn = false;
+    
+    //MODS
+    mods.push_back("jpelizza");
+    mods.push_back("uneaseplacebo");
+    mods.push_back("ricardostoklosa");
+    mods.push_back("tteknahlowg");
+    mods.push_back("manakithegreat");
+    mods.push_back("alucard27xxx");
+    mods.push_back("utechhh");
+    
+    
     login();
 }
 
@@ -130,8 +143,6 @@ void bot::loop(){
         checkOnRaffle();
     }
 }
-
-
 void bot::msgCheck(char *msgRecv){
     struct msg latestMsg = msgManager(msgRecv);
 
@@ -141,6 +152,9 @@ void bot::msgCheck(char *msgRecv){
         }
         else if(!latestMsg.text.compare("!pau")){
             Cdick(latestMsg);
+        }
+        else if(!latestMsg.text.compare("!gamer")){
+            Cgamer(latestMsg);
         }
         else if(!latestMsg.text.compare("!skip")){
             Cskip(latestMsg);
@@ -163,7 +177,6 @@ void bot::msgCheck(char *msgRecv){
     }
     return;
 }
-
 struct msg bot::msgManager(char *msgRecv){
     if(devMode) std::cout << "msgManager()\n";
 
@@ -176,7 +189,19 @@ struct msg bot::msgManager(char *msgRecv){
     return latestMsg;
 
 }
-
+bool bot::isAdm(std::string user){
+    for(auto i = mods.begin();i!=mods.end();i++){
+        if(!(i->compare(user))){
+            return true;
+        }
+    }
+    return false;
+}
+void bot::Cgamer(struct msg latestMsg){
+    msg = privmsg + "Ser gamer, ser um jogador, vocês já se questionaram o que é ser um gamer? Já se questionaram o que os videogames te ensinaram pra você levar pra sua vida? ou você nunca parou pra pensar nisso? afinal são horas e horas que dedicamos a eles, muitas horas de nossos dias e nossas vidas. Se vocês forem bons observadores, vão notar que eles tem muitas coisas pra nos ensinar, nos inspirar. Zangado, o que os games ensinaram a voce? O que é ser um gamer? Eu digo a vocês. Os games me ensinaram que quando";
+    std::cout << msg << std::endl;
+    sendprivmsg(msg);
+}
 void bot::Cdice(struct msg latestMsg){
     msg = privmsg + "@" + latestMsg.user + " rolled " +
                         std::to_string((rand()%20)+1);
@@ -189,16 +214,18 @@ void bot::Cdick(struct msg latestMsg){
     sendprivmsg(msg);
 }
 void bot::Craffle(struct msg latestMsg){
-    if(!raffleIsOn){
-        time(&raffleTimer);
-        raffleIsOn = true;
-        raffleSeconds = atoi(latestMsg.text.substr(4).c_str());
-        if(raffleSeconds>600){
-            raffleSeconds=600;
+    if(isAdm(latestMsg.user)){
+        if(!raffleIsOn){
+            time(&raffleTimer);
+            raffleIsOn = true;
+            raffleSeconds = atoi(latestMsg.text.substr(4).c_str());
+            if(raffleSeconds>600){
+                raffleSeconds=600;
+            }
         }
-    }
-    else{
-        raffleList.push_back(latestMsg.user);
+        else{
+            raffleList.push_back(latestMsg.user);
+        }
     }
 }
 void bot::Crequest(struct msg latestMsg){
@@ -209,22 +236,22 @@ void bot::Crequest(struct msg latestMsg){
     return;
 }
 void bot::Cskip(struct msg latestMsg){
-    if(latestMsg.user.find(channel)){
+    if(latestMsg.user.find(channel) && isAdm(latestMsg.user)){
         player.vlcSkip();
     }
 }
 void bot::Cvolume(struct msg latestMsg){
-    if(latestMsg.user.find(channel)){
+    if(latestMsg.user.find(channel) && isAdm(latestMsg.user)){
         player.vlcChangeVolume(atoi(latestMsg.text.substr(4).c_str()));
     }
 }
 void bot::Cplay(struct msg latestMsg){
-    if(latestMsg.user.find(channel)){
+    if(latestMsg.user.find(channel) && isAdm(latestMsg.user)){
         player.ableToPlay = true;
     }
 }
 void bot::Cstop(struct msg latestMsg){
-    if(latestMsg.user.find(channel)){
+    if(latestMsg.user.find(channel) && isAdm(latestMsg.user)){
         player.ableToPlay = false;
     }
 }

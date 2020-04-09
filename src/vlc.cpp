@@ -7,7 +7,7 @@ vlc::vlc(){
 }
 
 bool vlc::checkDownload(std::string url){
-    if(url.find("list=") == std::string::npos && url.find("radio") == std::string::npos && url.find("youtube.be") == std::string::npos && url.find("youtube.com") != std::string::npos){
+    if(url.find("list=") == std::string::npos && url.find("radio") == std::string::npos && (url.find("youtube.com") != std::string::npos || url.find("youtu.be") != std::string::npos)){
         return true;
     }
     else{
@@ -42,10 +42,10 @@ void vlc::checkOnPlayer(){
 
 void vlc::vlcPlay(std::string url){
 
-    for(int i=0;!(exists(std::string("./music/") + url.substr(url.find_last_of("/watch?v=")+1))) && i<10;i++){
-        usleep(100000);
+    for(int i=0;!(exists(std::string("./music/") + url.substr(url.find_last_of("/")+1))) && i<10;i++){
+        usleep(1000000);
     }
-    m = libvlc_media_new_path (inst, (std::string("./music/") + url.substr(url.find_last_of("/watch?v=")+1)).c_str());
+    m = libvlc_media_new_path (inst, (std::string("./music/") + url.substr(url.find_last_of("/")+1)).c_str());
     mp = libvlc_media_player_new_from_media (m);
     libvlc_media_release (m);
     libvlc_media_player_play (mp);
@@ -69,7 +69,7 @@ bool vlc::exists(std::string name){
 }
 
 void vlc::vlcDownload(std::string url){
-    std::string command = "youtube-dl -f 'bestaudio[filesize<15M]' -o ./music/" + url.substr(url.find_last_of("/watch?v=")+1) + " " + url + " --no-playlist --geo-bypass";
+    std::string command = "youtube-dl -f 'bestaudio[filesize<15M]' -o ./music/" + url.substr(url.find_last_of("/")+1) + " " + url + " --no-playlist --geo-bypass";
     system(command.c_str());
     return;
 }
