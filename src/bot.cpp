@@ -2,23 +2,22 @@
 
 
 bot::bot(){
-    for(int i=0;i<10;i++){
+    memset(&hints,0,sizeof(hints));
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_family = AF_INET;
+    for(int i=0;i<5;i++){
         try{
-            if(getaddrinfo(serv_addr,port, &hints, &peer_address)){
-                throw "Error trying to reach twitch's DNS\nTrying again in 5 seconds...";
+            bytes_recv = getaddrinfo(serv_addr,port, &hints, &peer_address);
+            if(bytes_recv!=0){
+                throw "Error trying to reach twitch's DNS\nTrying again in 2 seconds...";
             }
             else break;
         }
         catch(const char* error){
-            std::cout << error << std::endl;
+            std::cout << bytes_recv << std::endl;
         }
-        sleep(5);
+        sleep(2);
     }
-
-    memset(&hints,0,sizeof(hints));
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_family = AF_INET;
-
     //INITIALIZING SOCKET
     socket_peer = socket(peer_address->ai_family,
     peer_address->ai_socktype, peer_address->ai_protocol);
