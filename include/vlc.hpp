@@ -8,6 +8,8 @@
 #include <list>
 #include <thread>
 #include <fstream>
+#include <regex>
+#include <iostream>
 
 
 class vlc{

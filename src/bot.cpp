@@ -75,7 +75,6 @@ void bot::login(){
     send(socket_peer,nick,strlen(nick),0);
     send(socket_peer,join,strlen(join),0);
 }
-
 void bot::pong(){
     char data[4096]  = "PONG :tmi.twitch.tv\n";
     int bytes_sent = send(socket_peer,data,strlen(data),0);
@@ -87,7 +86,6 @@ void bot::ping(){
     int bytes_sent = send(socket_peer,data,strlen(data),0);
     if(bytes_sent > 1 && devMode) std::cout << "PING sent\n";
 }
-
 void bot::loop(){
     while(true){
         //SETUP READS WITH SOCKET
@@ -219,8 +217,8 @@ void bot::Craffle(struct msg latestMsg){
             time(&raffleTimer);
             raffleIsOn = true;
             raffleSeconds = atoi(latestMsg.text.substr(4).c_str());
-            if(raffleSeconds>600){
-                raffleSeconds=600;
+            if(raffleSeconds>120){
+                raffleSeconds=120;
             }
         }
         else{
@@ -228,6 +226,18 @@ void bot::Craffle(struct msg latestMsg){
         }
     }
 }
+//CHANGE EVERYTHING LATERS
+/*
+    if(check download link){
+        if(download returns struct with user, title){
+            privmsg(@ added X to playlist)/
+        }
+        could not access link
+    }
+    else{
+        link not understood
+    }
+*/
 void bot::Crequest(struct msg latestMsg){
     if(!player.addToRequestList(latestMsg.text.substr(4))){
         msg = privmsg + "@" + latestMsg.user + " Seu link foi negado pelo bot, por favor não usar playlist ou radio, obrigado!";
@@ -256,17 +266,17 @@ void bot::Cstop(struct msg latestMsg){
     }
 }
 void bot::checkOnRaffle(){
-    
+    //std::cout << (difftime(time(NULL),raffleTimer)) << std::endl;
     if(raffleIsOn==false){
         return;
     }
-
     else if(difftime(time(NULL),raffleTimer) > raffleSeconds){
+        std::cout << raffleList.size() << std::endl;
         raffleIsOn = false;
 
         if(raffleList.size() < 1) return;
 
-        msg = privmsg + std::string(channel) + " :@" +
+        msg = privmsg + "@" +
                             raffleList.at(rand()%raffleList.size()) +
                             " won the raffle! CONGRATULATIONS!";
 

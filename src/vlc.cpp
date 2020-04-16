@@ -71,5 +71,6 @@ bool vlc::exists(std::string name){
 void vlc::vlcDownload(std::string url){
     std::string command = "youtube-dl -f 'bestaudio[filesize<15M]' -o ./music/" + url.substr(url.find_last_of("/")+1) + " " + url + " --no-playlist --geo-bypass";
     system(command.c_str());
+    system("youtube-dl --rm-cache-dir");
     return;
 }

@@ -79,7 +79,7 @@ class bot{
         struct msg latestMsg;
     
     //RAFFLE
-        bool raffleIsOn;
+        bool raffleIsOn = false;
         std::vector<std::string> raffleList;
         int raffleSeconds;
 
@@ -107,6 +107,7 @@ class bot{
     void Cdick(struct msg);
     void Craffle(struct msg);
     //VLC COMMANDS
+    void Chelp(struct msg);
     void Cskip(struct msg);
     void Crequest(struct msg);
     void Cvolume(struct msg);
