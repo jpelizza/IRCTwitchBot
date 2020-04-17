@@ -6,25 +6,22 @@ vlc::vlc(){
     cont = 0;
 }
 
-bool vlc::checkDownload(std::string url){
-    if(url.find("list=") == std::string::npos && url.find("radio") == std::string::npos && (url.find("youtube.com") != std::string::npos || url.find("youtu.be") != std::string::npos)){
-        return true;
-    }
-    else{
-        std::cout << "Check Download failed\n";
-        return false;
-    }
-    return false;
-}
-
 bool vlc::addToRequestList(std::string url){
-    if(checkDownload(url)){
-        std::thread dwnld(vlcDownload,url);
-        dwnld.detach();
-        requestList.push_back(url);
-        return true;
+    std::cmatch c;
+    regex_match(url.c_str(),c,std::regex("(?:(.*v=([^&]*).*))|(?:.*be/(.*))"));
+    std::cmatch ccopy(c);
+
+    for(unsigned i=0; i<ccopy.size(); i++){
+        std::cout << ccopy[i].length() << std::endl;
+        if(ccopy[i].length()==11) url = ccopy[i];
     }
-    return false;
+    std::cout << url.size() << std::endl;
+    if(url.size()!=11) return false;
+
+    std::thread dwnld(vlcDownload,url);
+    dwnld.detach();
+    requestList.push_back(url);
+    return true;
 }
 
 void vlc::checkOnPlayer(){
@@ -42,10 +39,10 @@ void vlc::checkOnPlayer(){
 
 void vlc::vlcPlay(std::string url){
 
-    for(int i=0;!(exists(std::string("./music/") + url.substr(url.find_last_of("/")+1))) && i<10;i++){
+    for(int i=0;!(exists(std::string("./music/") + url) && i<10);i++){
         usleep(1000000);
     }
-    m = libvlc_media_new_path (inst, (std::string("./music/") + url.substr(url.find_last_of("/")+1)).c_str());
+    m = libvlc_media_new_path (inst, (std::string("./music/") + url).c_str());
     mp = libvlc_media_player_new_from_media (m);
     libvlc_media_release (m);
     libvlc_media_player_play (mp);

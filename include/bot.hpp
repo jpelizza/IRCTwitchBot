@@ -67,7 +67,7 @@ class bot{
     std::list<std::string> mods;
 
     //DEV INFO
-    bool devMode = true;
+    bool devMode = false;
     bool chatMode =true;
 
     //USEFUL

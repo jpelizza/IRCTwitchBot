@@ -8,24 +8,23 @@
 #include <list>
 #include <thread>
 #include <fstream>
-#include <regex>
 #include <iostream>
+#include <regex>
 
 
 class vlc{
+    //VLC ESSENTIALS
+    public:
     libvlc_instance_t * inst;
     libvlc_media_player_t *mp;
     libvlc_media_t *m;
 
     //USEFUL
+    public:
     std::list<std::string> requestList;
     int state;
     int cont;
-    public:
     bool ableToPlay;
-
-
-
 
     public:
     vlc();
