@@ -52,7 +52,6 @@ bot::bot(){
     
     login();
 }
-
 void bot::login(){
     Env *env = new Env();
 
@@ -108,9 +107,6 @@ void bot::loop(){
             else if(std::string(read).find(channel) != std::string::npos){
                 msgCheck(read);
             }
-            else{
-                std::cout<<this->channel<<std::endl;
-            }
             //CHECK IF CONNECTION CLOSED
             if(bytes_recv < 1){
                 std::cout << "Connection closed by peer\n";
@@ -137,7 +133,7 @@ void bot::loop(){
                 std::cout << "Sent " << bytes_sent << " bytes\n";
             }
         }
-        player.checkOnPlayer();
+        player.checkOnPlayer(socket_peer, privmsg);
         checkOnRaffle();
     }
 }

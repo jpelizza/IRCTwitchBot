@@ -4,6 +4,7 @@
 
 #include <unistd.h>
 #include <vlc/vlc.h>
+#include <sys/socket.h>
 #include <iostream>
 #include <list>
 #include <thread>
@@ -32,10 +33,11 @@ class vlc{
     bool addToRequestList(std::string);
     void vlcPlay(std::string);
     static void vlcDownload(std::string);
-    void checkOnPlayer();
+    void checkOnPlayer(int,std::string);
     bool exists(std::string);
     void vlcSkip();
     void vlcChangeVolume(int);
+    void getNowPlaying(int,std::string,std::string);
 };
 
 #endif // VLC
