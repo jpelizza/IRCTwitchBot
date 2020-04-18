@@ -27,6 +27,12 @@ class vlc{
     int state;
     int cont;
     bool ableToPlay;
+
+        //REGEX
+    std::cmatch c;
+    
+    //FILES
+    std::ifstream myfile;
     std::string title;
 
     public:

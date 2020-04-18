@@ -68,7 +68,7 @@ class bot{
 
     //DEV INFO
     bool devMode = false;
-    bool chatMode =true;
+    bool chatMode =false;
 
     //USEFUL
     int bytes_recv = 0;
@@ -88,6 +88,13 @@ class bot{
     time_t raffleTimer;
 
 
+    Env *env;
+
+    std::vector<std::string> buffer;
+    int numOnBuffer;
+    std::string readString;
+    std::string title;
+
     vlc player;
 
     public: //functions
@@ -100,8 +107,8 @@ class bot{
     void login();
     void checkers();
     //MESSAGES
-    void msgCheck(char *recv);
-    struct msg msgManager(char *recv);
+    void msgCheck(std::string recv);
+    struct msg msgManager(std::string recv);
     //TEXT COMANDS
     void sendprivmsg(std::string);
     void Cdice(struct msg);

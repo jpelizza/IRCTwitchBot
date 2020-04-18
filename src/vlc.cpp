@@ -6,7 +6,7 @@ vlc::vlc(){
     cont = 0;
 }
 int vlc::addToRequestList(std::string url){
-    std::cmatch c;
+    
     regex_match(url.c_str(),c,std::regex("(?:(?:.*v=([^&]*).*))|(?:.*be/(.*))"));
     std::cmatch ccopy(c);
 
@@ -23,12 +23,9 @@ int vlc::addToRequestList(std::string url){
             return 2;
         }
     }
-
-    std::thread dwnld(vlcDownload,url);
     std::thread getTitleThread(getTitle,url);
+    std::thread dwnld(vlcDownload,url);
     dwnld.detach();
-    std::ifstream myfile;
-    std::string title;
     getTitleThread.join();
     myfile.open("title.txt", std::ios::out | std::ios::app | std::ios::binary);
     getline(myfile,title);
@@ -79,8 +76,8 @@ void vlc::vlcChangeVolume(int volume){
     return;
 }
 bool vlc::exists(std::string name){
-    std::ifstream f(name.c_str());
-    return f.good();
+    std::ifstream myfile(name.c_str());
+    return myfile.good();
 }
 void vlc::vlcDownload(std::string url){
     std::string command = "youtube-dl -f 'bestaudio[filesize<15M]' -o ./music/" + url + " " + url + " --no-playlist --geo-bypass";

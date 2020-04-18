@@ -49,12 +49,10 @@ bot::bot(){
     mods.push_back("alucard27xxx");
     mods.push_back("utechhh");
     
-    
+    env = new Env();
     login();
 }
 void bot::login(){
-    Env *env = new Env();
-
     char pass[4096]  = "PASS ";
     char nick[4096] = "NICK ";
     char join[4096] = "JOIN ";
@@ -73,6 +71,7 @@ void bot::login(){
     send(socket_peer,pass,strlen(pass),0);
     send(socket_peer,nick,strlen(nick),0);
     send(socket_peer,join,strlen(join),0);
+    recv(socket_peer, NULL, 4096, 0);
 }
 void bot::pong(){
     char data[4096]  = "PONG :tmi.twitch.tv\n";
@@ -102,16 +101,29 @@ void bot::loop(){
         if(FD_ISSET(socket_peer, &reads)){
             char read[4096];
             bytes_recv = recv(socket_peer, read, 4096, 0);
-            //TAKES CARE OF MESSAGE
-            if (!std::string(read).substr(0,4).compare("PING")) pong();
-            else if(std::string(read).find(channel) != std::string::npos){
-                msgCheck(read);
-            }
             //CHECK IF CONNECTION CLOSED
             if(bytes_recv < 1){
                 std::cout << "Connection closed by peer\n";
                 break;
             }
+            //TAKES CARE OF MESSAGE
+            numOnBuffer=0;
+            readString = read;
+            for(int i=0;read[i]!='\0';i++){
+                if(read[i]=='\n') numOnBuffer++;
+            }
+            for(int i = 0;i<numOnBuffer;i++){
+                buffer.push_back(readString.substr(0,readString.find_first_of("\n")));
+                readString = readString.substr(readString.find_first_of("\n")+1);
+            }
+            for(auto it = buffer.begin();it!=buffer.end();it++){
+                if(devMode)std::cout << "*it = " << *it << std::endl;
+                if (!(*it).substr(0,4).compare("PING")) pong();
+                else if((*it).find(channel) != std::string::npos){
+                    msgCheck(*it);
+                }
+            }
+            buffer.clear();
             //PRINT
             if(devMode){
                 std::cout << "Received " << bytes_recv << " bytes, message is: " << std::endl << read << std::endl;
@@ -138,15 +150,15 @@ void bot::loop(){
 }
 
 void bot::checkers(){
-    std::string title = player.checkOnPlayer();
+    title = player.checkOnPlayer();
     if(title!=""){
-        sendprivmsg(std::string(privmsg + "Now playing: " + title));
+        sendprivmsg(std::string("Now playing: " + title));
     }
     checkOnRaffle();
 }
 
-void bot::msgCheck(char *msgRecv){
-    struct msg latestMsg = msgManager(msgRecv);
+void bot::msgCheck(std::string msgRecv){
+    latestMsg = msgManager(msgRecv);
 
     if(latestMsg.text[0] == '!'){
         if(!latestMsg.text.compare("!dice")){
@@ -179,15 +191,12 @@ void bot::msgCheck(char *msgRecv){
     }
     return;
 }
-struct msg bot::msgManager(char *msgRecv){
-    if(devMode) std::cout << "msgManager()\n";
-
-    latestMsg.user = std::string(msgRecv).substr(1,std::string(msgRecv).find('!')-1);
-    latestMsg.text = std::string(msgRecv).substr(std::string(msgRecv).find(" :")+2);
+struct msg bot::msgManager(std::string msgRecv){
+    latestMsg.user = msgRecv.substr(1,std::string(msgRecv).find('!')-1);
+    latestMsg.text = msgRecv.substr(std::string(msgRecv).find(" :")+2);
     if(chatMode) std::cout << latestMsg.user <<" : " << latestMsg.text << std::endl;
     //string fix
-    latestMsg.text.pop_back();latestMsg.text.pop_back();
-    
+    latestMsg.text.pop_back();
     return latestMsg;
 
 }
@@ -200,18 +209,16 @@ bool bot::isAdm(std::string user){
     return false;
 }
 void bot::Cgamer(struct msg latestMsg){
-    msg = privmsg + "Ser gamer, ser um jogador, vocês já se questionaram o que é ser um gamer? Já se questionaram o que os videogames te ensinaram pra você levar pra sua vida? ou você nunca parou pra pensar nisso? afinal são horas e horas que dedicamos a eles, muitas horas de nossos dias e nossas vidas. Se vocês forem bons observadores, vão notar que eles tem muitas coisas pra nos ensinar, nos inspirar. Zangado, o que os games ensinaram a voce? O que é ser um gamer? Eu digo a vocês. Os games me ensinaram que quando";
-    std::cout << msg << std::endl;
+    msg = "Ser gamer, ser um jogador, vocês já se questionaram o que é ser um gamer? Já se questionaram o que os videogames te ensinaram pra você levar pra sua vida? ou você nunca parou pra pensar nisso? afinal são horas e horas que dedicamos a eles, muitas horas de nossos dias e nossas vidas. Se vocês forem bons observadores, vão notar que eles tem muitas coisas pra nos ensinar, nos inspirar. Zangado, o que os games ensinaram a voce? O que é ser um gamer? Eu digo a vocês. Os games me ensinaram que quando";
     sendprivmsg(msg);
 }
 void bot::Cdice(struct msg latestMsg){
-    msg = privmsg + "@" + latestMsg.user + " rolled " +
+    msg ="@" + latestMsg.user + " rolled " +
                         std::to_string((rand()%20)+1);
-    std::cout << msg << std::endl;
     sendprivmsg(msg);
 }
 void bot::Cdick(struct msg latestMsg){
-    msg = privmsg + "@" + latestMsg.user + " tem " +
+    msg ="@" + latestMsg.user + " tem " +
                             std::to_string((rand()%20)+1) + "cm de pinto";
     sendprivmsg(msg);
 }
@@ -234,13 +241,13 @@ void bot::Crequest(struct msg latestMsg){
     int requestResponse = player.addToRequestList(latestMsg.text.substr(4));
     switch (requestResponse){
     case 1:
-        msg = privmsg + "@" + latestMsg.user + " Seu link foi negado pelo bot, por favor não usar link de radio, obrigado!";
+        msg = "@" + latestMsg.user + " Seu link foi negado pelo bot, por favor não usar link de radio, obrigado!";
         break;
     case 2:
-        msg = privmsg + "@" + latestMsg.user + " Esta música já foi adicionada na playlist, fica esperto que daqui a pouco toca jpelizMK";
+        msg = "@" + latestMsg.user + " Esta música já foi adicionada na playlist, fica esperto que daqui a pouco toca jpelizMK";
         break;
     default:
-        msg = privmsg + "@" + latestMsg.user + " Música adicionada a playlist sucesso!!";
+        msg = "@" + latestMsg.user + " Música adicionada a playlist sucesso!!";
         break;
     }
     sendprivmsg(msg);
@@ -267,7 +274,6 @@ void bot::Cstop(struct msg latestMsg){
     }
 }
 void bot::checkOnRaffle(){
-    //std::cout << (difftime(time(NULL),raffleTimer)) << std::endl;
     if(raffleIsOn==false){
         return;
     }
@@ -277,9 +283,7 @@ void bot::checkOnRaffle(){
 
         if(raffleList.size() < 1) return;
 
-        msg = privmsg + "@" +
-                            raffleList.at(rand()%raffleList.size()) +
-                            " won the raffle! CONGRATULATIONS!";
+        msg = "@" + raffleList.at(rand()%raffleList.size()) + " won the raffle! CONGRATULATIONS!";
 
         sendprivmsg(msg);
 
@@ -289,9 +293,10 @@ void bot::checkOnRaffle(){
     }
 }
 void bot::sendprivmsg(std::string text){
-    text = text + "\n";
+    text = privmsg + text + "\n";
     int bytes_sent = send(socket_peer,text.c_str(),strlen(text.c_str()),0);
     if(bytes_sent<1){
         std::cout << "ERROR TRYING TO SEND MESSAGE\n";
     }
+    text.clear();
 }
