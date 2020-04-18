@@ -11,6 +11,7 @@
 #include <fstream>
 #include <iostream>
 #include <regex>
+#include <tuple>
 
 
 class vlc{
@@ -22,22 +23,26 @@ class vlc{
 
     //USEFUL
     public:
-    std::list<std::string> requestList;
+    std::list<std::tuple<std::string,std::string>> requestList;
     int state;
     int cont;
     bool ableToPlay;
+    std::string title;
 
     public:
     vlc();
-    bool checkDownload(std::string);
-    bool addToRequestList(std::string);
-    void vlcPlay(std::string);
     static void vlcDownload(std::string);
-    void checkOnPlayer(int,std::string);
+    static void getTitle(std::string);
+    bool checkDownload(std::string);
+    int addToRequestList(std::string);
+    void vlcPlay(std::string);
+    std::string checkOnPlayer();
     bool exists(std::string);
     void vlcSkip();
     void vlcChangeVolume(int);
-    void getNowPlaying(int,std::string,std::string);
+
+
+    
 };
 
 #endif // VLC

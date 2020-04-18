@@ -98,9 +98,10 @@ class bot{
     void pong();
     void ping();
     void login();
+    void checkers();
     //MESSAGES
-    void msgCheck(char *recv);
-    struct msg msgManager(char *recv);
+    void msgCheck(std::string);
+    struct msg msgManager(std::string);
     //TEXT COMANDS
     void sendprivmsg(std::string);
     void Cdice(struct msg);

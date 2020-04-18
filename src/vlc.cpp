@@ -5,9 +5,9 @@ vlc::vlc(){
     state= -1;
     cont = 0;
 }
-bool vlc::addToRequestList(std::string url){
+int vlc::addToRequestList(std::string url){
     std::cmatch c;
-    regex_match(url.c_str(),c,std::regex("(?:(.*v=([^&]*).*))|(?:.*be/(.*))"));
+    regex_match(url.c_str(),c,std::regex("(?:(?:.*v=([^&]*).*))|(?:.*be/(.*))"));
     std::cmatch ccopy(c);
 
     for(unsigned i=0; i<ccopy.size(); i++){
@@ -16,38 +16,44 @@ bool vlc::addToRequestList(std::string url){
     }
 
     std::cout << url.size() << std::endl;
-    if(url.size()!=11) return false;
+    if(url.size()!=11) return 1;
+
+    for(auto i=requestList.begin();i!=requestList.end();i++){
+        std::cout << std::get<0>(*i) << " == " << url << std::endl;
+        if(!std::get<0>(*i).compare(url.c_str())) return 2;
+    }
 
     std::thread dwnld(vlcDownload,url);
+    std::thread getTitleThread(getTitle,url);
     dwnld.detach();
-    requestList.push_back(url);
-    return true;
+    std::ifstream myfile;
+    std::string title;
+    getTitleThread.join();
+    myfile.open("title.txt", std::ios::out | std::ios::app | std::ios::binary);
+    getline(myfile,title);
+    std::cout << title << std::endl;
+    requestList.push_back(std::make_tuple(url,title));
+    return -1;
 }
-void vlc::checkOnPlayer(int sock_peer, std::string privmsg){
+
+void vlc::getTitle(std::string url){
+    system(std::string("youtube-dl " + url + " --get-title > title.txt").c_str());
+    return;
+}
+
+std::string vlc::checkOnPlayer(){
     
     if(state!=-1)state = libvlc_media_player_get_state(mp);
 
-    if(state == 0 || state == 1 || state == 3)return;
+    if(state == 0 || state == 1 || state == 3)return "";
     
     else if( requestList.size() > 0 ) {
-        vlcPlay(requestList.back());
-        getNowPlaying(sock_peer, privmsg , requestList.back());
-        requestList.pop_back();
+        vlcPlay(std::get<0>(requestList.front()));
+        title = std::get<1>(requestList.front());
+        requestList.pop_front();
+        return title;
     }
-
-    return;
-}
-void vlc::getNowPlaying(int sock_peer,std::string privmsg, std::string url){
-    system(std::string("youtube-dl "+ url +" --get-title > title.txt").c_str());
-    std::ifstream myfile;
-    std::string fileName = "title.txt";
-    std::string output;
-    myfile.open(fileName, std::ios::out | std::ios::app | std::ios::binary);
-    getline(myfile,output);
-    output = privmsg + "Now playing: " + output + "\n";
-
-    send(sock_peer,output.c_str(),output.size(),0);
-    return;
+    return "";
 }
 void vlc::vlcPlay(std::string url){
 

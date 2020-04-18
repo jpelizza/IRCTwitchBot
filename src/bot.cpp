@@ -133,10 +133,18 @@ void bot::loop(){
                 std::cout << "Sent " << bytes_sent << " bytes\n";
             }
         }
-        player.checkOnPlayer(socket_peer, privmsg);
-        checkOnRaffle();
+        checkers();
     }
 }
+
+void bot::checkers(){
+    std::string title = player.checkOnPlayer();
+    if(title!=""){
+        sendprivmsg(std::string(privmsg + "Now playing: " + title));
+    }
+    checkOnRaffle();
+}
+
 void bot::msgCheck(char *msgRecv){
     struct msg latestMsg = msgManager(msgRecv);
 
@@ -222,23 +230,20 @@ void bot::Craffle(struct msg latestMsg){
         }
     }
 }
-//CHANGE EVERYTHING LATERS
-/*
-    if(check download link){
-        if(download returns struct with user, title){
-            privmsg(@ added X to playlist)/
-        }
-        could not access link
-    }
-    else{
-        link not understood
-    }
-*/
 void bot::Crequest(struct msg latestMsg){
-    if(!player.addToRequestList(latestMsg.text.substr(4))){
-        msg = privmsg + "@" + latestMsg.user + " Seu link foi negado pelo bot, por favor não usar playlist ou radio, obrigado!";
-        sendprivmsg(msg);
+    int requestResponse = player.addToRequestList(latestMsg.text.substr(4));
+    switch (requestResponse){
+    case 1:
+        msg = privmsg + "@" + latestMsg.user + " Seu link foi negado pelo bot, por favor não usar link de radio, obrigado!";
+        break;
+    case 2:
+        msg = privmsg + "@" + latestMsg.user + " Esta música já foi adicionada na playlist, fica esperto que daqui a pouco toca jpelizMK";
+        break;
+    default:
+        msg = privmsg + "@" + latestMsg.user + " Música adicionada a playlist sucesso!!";
+        break;
     }
+    sendprivmsg(msg);
     return;
 }
 void bot::Cskip(struct msg latestMsg){
