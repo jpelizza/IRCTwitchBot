@@ -148,7 +148,9 @@ void bot::loop(){
         checkers();
     }
 }
-
+/*
+A few check fucntions to keep track on raffle and vlc player
+*/
 void bot::checkers(){
     title = player.checkOnPlayer();
     if(title!=""){
@@ -157,6 +159,10 @@ void bot::checkers(){
     checkOnRaffle();
 }
 
+/*
+msgCheck(std::string @_msg)
+@_msg recv bytes to be parsed and processed
+*/
 void bot::msgCheck(std::string msgRecv){
     latestMsg = msgManager(msgRecv);
 
@@ -191,6 +197,11 @@ void bot::msgCheck(std::string msgRecv){
     }
     return;
 }
+/*
+msgManaget(std::string @_s)
+@_s unfiltered byte stream
+returns struct msg with user and text filtered
+*/
 struct msg bot::msgManager(std::string msgRecv){
     latestMsg.user = msgRecv.substr(1,std::string(msgRecv).find('!')-1);
     latestMsg.text = msgRecv.substr(std::string(msgRecv).find(" :")+2);
@@ -200,6 +211,12 @@ struct msg bot::msgManager(std::string msgRecv){
     return latestMsg;
 
 }
+/*
+isAdm(std::string @_s)
+@_s is user to be checked
+returns true if on mods list
+else returns false
+*/
 bool bot::isAdm(std::string user){
     for(auto i = mods.begin();i!=mods.end();i++){
         if(!(i->compare(user))){
@@ -273,6 +290,11 @@ void bot::Cstop(struct msg latestMsg){
         player.ableToPlay = false;
     }
 }
+
+/*
+checkOnRaffle()
+If raffle is running, keeps track of time and users participating
+*/
 void bot::checkOnRaffle(){
     if(raffleIsOn==false){
         return;
@@ -292,6 +314,10 @@ void bot::checkOnRaffle(){
         }
     }
 }
+/*
+sendprivmsg(std::string @_s)
+sends @_s and privsmg on connected channel
+*/
 void bot::sendprivmsg(std::string text){
     text = privmsg + text + "\n";
     int bytes_sent = send(socket_peer,text.c_str(),strlen(text.c_str()),0);

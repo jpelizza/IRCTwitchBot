@@ -5,6 +5,12 @@ vlc::vlc(){
     state= -1;
     cont = 0;
 }
+/*
+addToRequestList(std::string @_s)
+returns -1 if successful
+1 if regex does not identify link
+2 if link alredy on playlist
+*/
 int vlc::addToRequestList(std::string url){
     
     regex_match(url.c_str(),c,std::regex("(?:(?:.*v=([^&]*).*))|(?:.*be/(.*))"));
@@ -29,16 +35,23 @@ int vlc::addToRequestList(std::string url){
     getTitleThread.join();
     myfile.open("title.txt", std::ios::out | std::ios::app | std::ios::binary);
     getline(myfile,title);
+    myfile.close();
     std::cout << title << std::endl;
     requestList.push_back(std::make_tuple(url,title));
     return -1;
 }
-
+/*
+getTitle(std::string @_s)
+requests youtube-dl for a title then streams it to title.txt
+*/
 void vlc::getTitle(std::string url){
     system(std::string("youtube-dl " + url + " --get-title > title.txt").c_str());
     return;
 }
-
+/*
+std::string @_t checkOnPlayer()
+check if vlc is running, keeps playlist on track and returns title
+*/
 std::string vlc::checkOnPlayer(){
     
     if(state!=-1)state = libvlc_media_player_get_state(mp);
@@ -53,9 +66,14 @@ std::string vlc::checkOnPlayer(){
     }
     return "";
 }
+/*
+vlcPlay(std::string @_s)
+searches for song on ./music/
+if after 5 seconds the file is not found moves
+*/
 void vlc::vlcPlay(std::string url){
 
-    for(int i=0;!(exists(std::string("./music/") + url) && i<10);i++){
+    for(int i=0;!(exists(std::string("./music/") + url) && i<5);i++){
         usleep(1000000);
     }
     m = libvlc_media_new_path (inst, (std::string("./music/") + url).c_str());
@@ -65,11 +83,17 @@ void vlc::vlcPlay(std::string url){
     state = libvlc_media_player_get_state(mp);
     return;
 }
+/*
+Stops VLC player skipping music
+*/
 void vlc::vlcSkip(){
     if(state==-1){return;}
     libvlc_media_player_stop(mp);
     return;
 }
+/*
+changes vlc instance volume
+*/
 void vlc::vlcChangeVolume(int volume){
     if(state==-1){return;}
     libvlc_audio_set_volume(mp,volume%101);
