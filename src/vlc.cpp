@@ -19,8 +19,9 @@ int vlc::addToRequestList(std::string url){
     if(url.size()!=11) return 1;
 
     for(auto i=requestList.begin();i!=requestList.end();i++){
-        std::cout << std::get<0>(*i) << " == " << url << std::endl;
-        if(!std::get<0>(*i).compare(url.c_str())) return 2;
+        if(!std::get<0>(*i).compare(url.c_str())){
+            return 2;
+        }
     }
 
     std::thread dwnld(vlcDownload,url);

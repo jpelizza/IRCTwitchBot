@@ -100,8 +100,8 @@ class bot{
     void login();
     void checkers();
     //MESSAGES
-    void msgCheck(std::string);
-    struct msg msgManager(std::string);
+    void msgCheck(char *recv);
+    struct msg msgManager(char *recv);
     //TEXT COMANDS
     void sendprivmsg(std::string);
     void Cdice(struct msg);
