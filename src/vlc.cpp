@@ -4,6 +4,9 @@ vlc::vlc(){
     inst = libvlc_new (0, NULL);
     state= -1;
     cont = 0;
+    ableToPlay = false;
+    getStandByPlaylist();
+    srand(time(NULL));
 }
 /*
 addToRequestList(std::string @_s)
@@ -57,12 +60,16 @@ std::string vlc::checkOnPlayer(){
     if(state!=-1)state = libvlc_media_player_get_state(mp);
 
     if(state == 0 || state == 1 || state == 3)return "";
-    
-    else if( requestList.size() > 0 ) {
+    else if( requestList.size() > 0 && ableToPlay) {
         vlcPlay(std::get<0>(requestList.front()));
         title = std::get<1>(requestList.front());
         requestList.pop_front();
         return title;
+    }
+    else if(requestList.size() <= 0 && ableToPlay){
+        addToRequestList(standByPlaylist.front());
+        standByPlaylist.push_back(standByPlaylist.front());
+        standByPlaylist.erase(standByPlaylist.begin());
     }
     return "";
 }
@@ -74,7 +81,7 @@ if after 5 seconds the file is not found moves
 void vlc::vlcPlay(std::string url){
 
     for(int i=0;!(exists(std::string("./music/") + url) && i<5);i++){
-        usleep(1000000);
+        usleep(100000);
     }
     m = libvlc_media_new_path (inst, (std::string("./music/") + url).c_str());
     mp = libvlc_media_player_new_from_media (m);
@@ -108,4 +115,15 @@ void vlc::vlcDownload(std::string url){
     system(command.c_str());
     system("youtube-dl --rm-cache-dir");
     return;
+}
+void vlc::getStandByPlaylist(){
+    std::ifstream file("standByPlaylist.txt");
+    std::string str;
+    std::string file_contents;
+    while (std::getline(file, str)){
+        standByPlaylist.push_back(str);
+    }
+    std::mt19937 g(rd());
+    std::shuffle(standByPlaylist.begin(),standByPlaylist.end(),g);
+    std::cout << standByPlaylist.size() << std::endl;
 }

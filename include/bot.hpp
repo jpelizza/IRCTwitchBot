@@ -72,6 +72,7 @@ class bot{
 
     //USEFUL
     int bytes_recv = 0;
+    int auxInt;
     
     //MESSAGES
         std::string msg;
@@ -121,7 +122,8 @@ class bot{
     void Cvolume(struct msg);
     void Cplay(struct msg);
     void Cstop(struct msg);
-    void Cgamer(struct msg);
+    void Cplaylist(struct msg);
+    int commandCheck(struct msg);
     
 
     //Aux

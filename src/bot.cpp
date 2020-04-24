@@ -165,37 +165,82 @@ msgCheck(std::string @_msg)
 */
 void bot::msgCheck(std::string msgRecv){
     latestMsg = msgManager(msgRecv);
+    auxInt = commandCheck(latestMsg);
+    
+    switch (auxInt)
+    {
+    case 1:
+        Cdice(latestMsg);
+        break;
+    case 2:
+        Cdick(latestMsg);
+        break;
+    case 3:
+        Cplaylist(latestMsg);
+        break;
+    case 4:
+        Cskip(latestMsg);
+        break;
+    case 5:
+        Cstop(latestMsg);
+        break;
+    case 6:
+        Cplay(latestMsg);
+        break;
+    case 7:
+        Crequest(latestMsg);
+        break;
+    case 8:
+        Craffle(latestMsg);
+        break;
+    case 9:
+        Cvolume(latestMsg);
+        break;
+    
+    default:
+        std::cout << "COULD NOT UNDESTAND COMMAND";
+        break;
+    }
+    /*
+        Fazer classe Comando com função abstrata @override executar
+        cada classe tera um string pra comparação
+    */
 
+
+    
+    return;
+}
+
+int bot::commandCheck(struct msg latestMsg){
     if(latestMsg.text[0] == '!'){
         if(!latestMsg.text.compare("!dice")){
-            Cdice(latestMsg);
+            return 1;
         }
         else if(!latestMsg.text.compare("!pau")){
-            Cdick(latestMsg);
+            return 2;
         }
-        else if(!latestMsg.text.compare("!gamer")){
-            Cgamer(latestMsg);
+        else if(!latestMsg.text.compare("!playlist")){
+            return 3;
         }
         else if(!latestMsg.text.compare("!skip")){
-            Cskip(latestMsg);
+            return 4;
         }
         else if(!latestMsg.text.compare("!stop")){
-            Cstop(latestMsg);
+            return 5;
         }
         else if(!latestMsg.text.compare("!play")){
-            Cplay(latestMsg);
+            return 6;
         }
         else if(!latestMsg.text.substr(0,4).compare("!add")){
-            Crequest(latestMsg);
+            return 7;
         }
         else if(!latestMsg.text.substr(0,4).compare("!raf")){
-            Craffle(latestMsg);
+            return 8;
         }
         else if(!latestMsg.text.substr(0,4).compare("!vol")){
-            Cvolume(latestMsg);
+            return 9;
         }
     }
-    return;
 }
 /*
 msgManaget(std::string @_s)
@@ -225,10 +270,10 @@ bool bot::isAdm(std::string user){
     }
     return false;
 }
-void bot::Cgamer(struct msg latestMsg){
-    msg = "Ser gamer, ser um jogador, vocês já se questionaram o que é ser um gamer? Já se questionaram o que os videogames te ensinaram pra você levar pra sua vida? ou você nunca parou pra pensar nisso? afinal são horas e horas que dedicamos a eles, muitas horas de nossos dias e nossas vidas. Se vocês forem bons observadores, vão notar que eles tem muitas coisas pra nos ensinar, nos inspirar. Zangado, o que os games ensinaram a voce? O que é ser um gamer? Eu digo a vocês. Os games me ensinaram que quando";
-    sendprivmsg(msg);
-}
+
+
+
+
 void bot::Cdice(struct msg latestMsg){
     msg ="@" + latestMsg.user + " rolled " +
                         std::to_string((rand()%20)+1);
@@ -289,6 +334,21 @@ void bot::Cstop(struct msg latestMsg){
     if(latestMsg.user.find(channel) && isAdm(latestMsg.user)){
         player.ableToPlay = false;
     }
+}
+void bot::Cplaylist(struct msg latestMsg){
+    auxInt=0;
+    if(player.requestList.size()>0){
+        msg = "Up next: ";
+        for(auto it=player.requestList.begin();it!=player.requestList.end() && auxInt<3;it++,auxInt++){
+            msg += std::get<1>(*it) + " ; ";
+        }
+        msg += " and more "+ std::to_string(player.requestList.size()) + " other songs!";
+    }
+    else{
+        msg = "The playlist is empty! go ahead and use !add <yt-link> to add a song!";
+    }
+    sendprivmsg(msg);
+    return;
 }
 
 /*

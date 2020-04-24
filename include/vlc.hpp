@@ -6,12 +6,17 @@
 #include <vlc/vlc.h>
 #include <sys/socket.h>
 #include <iostream>
-#include <list>
 #include <thread>
 #include <fstream>
 #include <iostream>
 #include <regex>
 #include <tuple>
+#include <list>
+#include <vector>
+#include <random>
+#include <algorithm>
+#include <iterator>
+#include <iostream>
 
 
 class vlc{
@@ -23,10 +28,12 @@ class vlc{
 
     //USEFUL
     public:
+    std::vector<std::string> standByPlaylist;
     std::list<std::tuple<std::string,std::string>> requestList;
     int state;
     int cont;
     bool ableToPlay;
+    std::random_device rd;
 
         //REGEX
     std::cmatch c;
@@ -46,6 +53,8 @@ class vlc{
     bool exists(std::string);
     void vlcSkip();
     void vlcChangeVolume(int);
+    void getStandByPlaylist();
+
 
 
     
