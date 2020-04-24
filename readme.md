@@ -8,6 +8,8 @@ Twitch IRC bot written in C++ using Barkley's sockets with windows winsock suppo
 | !dice | rolls 1d20 |
 | !pau | rolls 1d20 |
 | !add <yt-link> | adds video to vlc playlist |
+| !play | starts playlist |
+| !stop | stops playlist |
 | !skip | skips video on vlc |
 | !vol INT | changes volume on vlc |
 
@@ -15,10 +17,10 @@ Twitch IRC bot written in C++ using Barkley's sockets with windows winsock suppo
 
 # Roadmap :
   
-  - Cleanup
+  - windows edition
 
 # "Gambiarra"
 Brazilian term meaning something that's working but definitely isn't correct
 
     bot.cpp:
-    latestMsg.text.pop_back();latestMsg.text.pop_back();
+    Switch case and msgCheck
