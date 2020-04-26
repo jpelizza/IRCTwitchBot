@@ -67,7 +67,7 @@ class bot{
     std::list<std::string> mods;
 
     //DEV INFO
-    bool devMode = false;
+    bool devMode = true;
     bool chatMode =false;
 
     //USEFUL
@@ -108,9 +108,14 @@ class bot{
     void login();
     void checkers();
     //MESSAGES
-    void msgCheck(std::string recv);
-    struct msg msgManager(std::string recv);
-    //TEXT COMANDS
+    void msgCheck(std::string);
+    struct msg msgManager(std::string);
+    //LOCAL COMMANDS
+    void hostCommandChecker(std::string);
+    void HCplaylist();
+    void HCremoveFromPlaylist(int);
+    void HCchangeOrder(std::string);
+    //TEXT COMMANDS
     void sendprivmsg(std::string);
     void Cdice(struct msg);
     void Cdick(struct msg);

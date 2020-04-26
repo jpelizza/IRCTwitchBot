@@ -139,15 +139,66 @@ void bot::loop(){
         if(FD_ISSET(0, &reads)){
         #endif
             char read[4096];
-            if(!fgets(read, 4096, stdin)) break;
-            int bytes_sent = send(socket_peer, read, strlen(read), 0);
-            if(devMode){
-                std::cout << "Sent " << bytes_sent << " bytes\n";
+            if(!fgets(read, 4096, stdin));
+            if(read[0]=='!'){
+                hostCommandChecker(std::string(read));
+            }
+            else{
+                int bytes_sent = send(socket_peer, read, strlen(read), 0);
+                if(devMode){
+                    std::cout << "Sent " << bytes_sent << " bytes\n";
+                }
             }
         }
         checkers();
     }
 }
+
+/*
+    checks for local host commands
+*/
+void bot::hostCommandChecker(std::string hostCommand){
+    hostCommand.pop_back();
+    if(!hostCommand.compare("!playlist")){
+        HCplaylist();
+    }
+    else if(!hostCommand.substr(0,7).compare("!remove")){
+        HCremoveFromPlaylist(atoi(hostCommand.substr(7).c_str()));
+    }
+    else if(!hostCommand.substr(0,12).compare("!changeOrder")){
+        HCchangeOrder(hostCommand.substr(12));
+    }
+    return;
+}
+
+void bot::HCchangeOrder(std::string hostCommand){
+    auxInt = 0;
+    size_t separator = hostCommand.find(' ');
+    int toChange = atoi(hostCommand.substr(0,separator).c_str());
+    int changeTo = atoi(hostCommand.substr(separator).c_str());
+    std::cout << hostCommand.substr(0,separator) << " " << hostCommand.substr(separator) << std::endl;
+    std::tuple<std::string,std::string> auxTuple;
+
+}
+void bot::HCplaylist(){
+    auxInt = 0;
+    for(auto it=player.requestList.begin();it!=player.requestList.end();it++,auxInt++){
+        std::cout << auxInt << ":" << std::get<1>(*it) << std::endl;
+    }
+    return;
+}
+
+void bot::HCremoveFromPlaylist(int whichToRemove){
+    auxInt=0;
+    for(auto it=player.requestList.begin();it!=player.requestList.end();it++,auxInt++){
+        if(whichToRemove == auxInt){
+            player.requestList.erase(it);
+            return;
+        }
+    }
+}
+
+
 /*
 A few check fucntions to keep track on raffle and vlc player
 */
@@ -165,83 +216,43 @@ msgCheck(std::string @_msg)
 */
 void bot::msgCheck(std::string msgRecv){
     latestMsg = msgManager(msgRecv);
-    auxInt = commandCheck(latestMsg);
     
-    switch (auxInt)
-    {
-    case 1:
-        Cdice(latestMsg);
-        break;
-    case 2:
-        Cdick(latestMsg);
-        break;
-    case 3:
-        Cplaylist(latestMsg);
-        break;
-    case 4:
-        Cskip(latestMsg);
-        break;
-    case 5:
-        Cstop(latestMsg);
-        break;
-    case 6:
-        Cplay(latestMsg);
-        break;
-    case 7:
-        Crequest(latestMsg);
-        break;
-    case 8:
-        Craffle(latestMsg);
-        break;
-    case 9:
-        Cvolume(latestMsg);
-        break;
-    
-    default:
-        std::cout << "COULD NOT UNDESTAND COMMAND";
-        break;
+        if(latestMsg.text[0] == '!'){
+        if(!latestMsg.text.compare("!dice")){
+            Cdice(latestMsg);
+        }
+        else if(!latestMsg.text.compare("!pau")){
+            Cdick(latestMsg);
+        }
+        else if(!latestMsg.text.compare("!playlist")){
+            Cplaylist(latestMsg);
+        }
+        else if(!latestMsg.text.compare("!skip")){
+            Cskip(latestMsg);
+        }
+        else if(!latestMsg.text.compare("!stop")){
+            Cstop(latestMsg);
+        }
+        else if(!latestMsg.text.compare("!play")){
+            Cplay(latestMsg);
+        }
+        else if(!latestMsg.text.substr(0,4).compare("!add")){
+            Crequest(latestMsg);
+        }
+        else if(!latestMsg.text.substr(0,4).compare("!raf")){
+            Craffle(latestMsg);
+        }
+        else if(!latestMsg.text.substr(0,4).compare("!vol")){
+            Cvolume(latestMsg);
+        }
     }
     /*
         Fazer classe Comando com função abstrata @override executar
         cada classe tera um string pra comparação
-    */
-
-
-    
+    */    
     return;
 }
 
-int bot::commandCheck(struct msg latestMsg){
-    if(latestMsg.text[0] == '!'){
-        if(!latestMsg.text.compare("!dice")){
-            return 1;
-        }
-        else if(!latestMsg.text.compare("!pau")){
-            return 2;
-        }
-        else if(!latestMsg.text.compare("!playlist")){
-            return 3;
-        }
-        else if(!latestMsg.text.compare("!skip")){
-            return 4;
-        }
-        else if(!latestMsg.text.compare("!stop")){
-            return 5;
-        }
-        else if(!latestMsg.text.compare("!play")){
-            return 6;
-        }
-        else if(!latestMsg.text.substr(0,4).compare("!add")){
-            return 7;
-        }
-        else if(!latestMsg.text.substr(0,4).compare("!raf")){
-            return 8;
-        }
-        else if(!latestMsg.text.substr(0,4).compare("!vol")){
-            return 9;
-        }
-    }
-}
 /*
 msgManaget(std::string @_s)
 @_s unfiltered byte stream
@@ -270,8 +281,6 @@ bool bot::isAdm(std::string user){
     }
     return false;
 }
-
-
 
 
 void bot::Cdice(struct msg latestMsg){

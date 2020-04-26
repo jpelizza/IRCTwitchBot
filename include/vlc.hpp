@@ -54,7 +54,7 @@ class vlc{
     void vlcSkip();
     void vlcChangeVolume(int);
     void getStandByPlaylist();
-
+    std::string searchByName(std::string);
 
 
     
