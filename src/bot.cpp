@@ -140,7 +140,7 @@ void bot::loop(){
         #endif
             char read[4096];
             if(!fgets(read, 4096, stdin));
-            if(read[0]=='!'){
+            if(read[0]=='+'){
                 hostCommandChecker(std::string(read));
             }
             else{
@@ -159,26 +159,39 @@ void bot::loop(){
 */
 void bot::hostCommandChecker(std::string hostCommand){
     hostCommand.pop_back();
-    if(!hostCommand.compare("!playlist")){
+    if(!hostCommand.compare("+playlist")){
         HCplaylist();
     }
-    else if(!hostCommand.substr(0,7).compare("!remove")){
+    else if(!hostCommand.substr(0,7).compare("+remove")){
         HCremoveFromPlaylist(atoi(hostCommand.substr(7).c_str()));
     }
-    else if(!hostCommand.substr(0,12).compare("!changeOrder")){
+    else if(!hostCommand.substr(0,12).compare("+changeOrder")){
         HCchangeOrder(hostCommand.substr(12));
+    }
+    else if(!hostCommand.compare("+skip")){
+        HCskip();
+    }
+    else if(!hostCommand.compare("+stop")){
+        HCstop();
+    }
+    else if(!hostCommand.compare("+play")){
+        HCplay();
+    }
+    else if(!hostCommand.substr(0,4).compare("+vol")){
+        HCvolume(hostCommand.substr(5));
     }
     return;
 }
 
 void bot::HCchangeOrder(std::string hostCommand){
+    /*
     auxInt = 0;
     size_t separator = hostCommand.find(' ');
     int toChange = atoi(hostCommand.substr(0,separator).c_str());
     int changeTo = atoi(hostCommand.substr(separator).c_str());
     std::cout << hostCommand.substr(0,separator) << " " << hostCommand.substr(separator) << std::endl;
     std::tuple<std::string,std::string> auxTuple;
-
+    */
 }
 void bot::HCplaylist(){
     auxInt = 0;
@@ -198,6 +211,18 @@ void bot::HCremoveFromPlaylist(int whichToRemove){
     }
 }
 
+void bot::HCskip(){
+    player.vlcSkip();
+}
+void bot::HCvolume(std::string volume){
+    player.vlcChangeVolume(atoi(volume.c_str()));
+}
+void bot::HCplay(){
+    player.ableToPlay = true;
+}
+void bot::HCstop(){
+    player.ableToPlay = false;
+}
 
 /*
 A few check fucntions to keep track on raffle and vlc player
@@ -227,23 +252,11 @@ void bot::msgCheck(std::string msgRecv){
         else if(!latestMsg.text.compare("!playlist")){
             Cplaylist(latestMsg);
         }
-        else if(!latestMsg.text.compare("!skip")){
-            Cskip(latestMsg);
-        }
-        else if(!latestMsg.text.compare("!stop")){
-            Cstop(latestMsg);
-        }
-        else if(!latestMsg.text.compare("!play")){
-            Cplay(latestMsg);
-        }
         else if(!latestMsg.text.substr(0,4).compare("!add")){
             Crequest(latestMsg);
         }
         else if(!latestMsg.text.substr(0,4).compare("!raf")){
             Craffle(latestMsg);
-        }
-        else if(!latestMsg.text.substr(0,4).compare("!vol")){
-            Cvolume(latestMsg);
         }
     }
     /*
@@ -324,26 +337,6 @@ void bot::Crequest(struct msg latestMsg){
     sendprivmsg(msg);
     return;
 }
-void bot::Cskip(struct msg latestMsg){
-    if(latestMsg.user.find(channel) && isAdm(latestMsg.user)){
-        player.vlcSkip();
-    }
-}
-void bot::Cvolume(struct msg latestMsg){
-    if(latestMsg.user.find(channel) && isAdm(latestMsg.user)){
-        player.vlcChangeVolume(atoi(latestMsg.text.substr(4).c_str()));
-    }
-}
-void bot::Cplay(struct msg latestMsg){
-    if(latestMsg.user.find(channel) && isAdm(latestMsg.user)){
-        player.ableToPlay = true;
-    }
-}
-void bot::Cstop(struct msg latestMsg){
-    if(latestMsg.user.find(channel) && isAdm(latestMsg.user)){
-        player.ableToPlay = false;
-    }
-}
 void bot::Cplaylist(struct msg latestMsg){
     auxInt=0;
     if(player.requestList.size()>0){
@@ -351,7 +344,8 @@ void bot::Cplaylist(struct msg latestMsg){
         for(auto it=player.requestList.begin();it!=player.requestList.end() && auxInt<3;it++,auxInt++){
             msg += std::get<1>(*it) + " ; ";
         }
-        msg += " and more "+ std::to_string(player.requestList.size()) + " other songs!";
+        if(player.requestList.size()-3>0)
+            msg += " and more "+ std::to_string(player.requestList.size()-3) + " other songs!";
     }
     else{
         msg = "The playlist is empty! go ahead and use !add <yt-link> to add a song!";

@@ -115,6 +115,10 @@ class bot{
     void HCplaylist();
     void HCremoveFromPlaylist(int);
     void HCchangeOrder(std::string);
+    void HCvolume(std::string);
+    void HCplay();
+    void HCstop();
+    void HCskip();
     //TEXT COMMANDS
     void sendprivmsg(std::string);
     void Cdice(struct msg);
@@ -122,11 +126,7 @@ class bot{
     void Craffle(struct msg);
     //VLC COMMANDS
     void Chelp(struct msg);
-    void Cskip(struct msg);
     void Crequest(struct msg);
-    void Cvolume(struct msg);
-    void Cplay(struct msg);
-    void Cstop(struct msg);
     void Cplaylist(struct msg);
     int commandCheck(struct msg);
     

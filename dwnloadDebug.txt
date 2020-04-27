@@ -1,6 +1,4 @@
-[youtube] 7MRtdd3tXI4: Downloading webpage
-[youtube] Downloading just video 7MRtdd3tXI4 because of --no-playlist
-[youtube] 7MRtdd3tXI4: Downloading js player vflset
-[youtube] 7MRtdd3tXI4: Downloading js player vflset
-[download] ./music/7MRtdd3tXI4 has already been downloaded
-[K[download] 100% of 3.80MiB
+[youtube] mB_tNDjdhl8: Downloading webpage
+[youtube] Downloading just video mB_tNDjdhl8 because of --no-playlist
+[download] ./music/mB_tNDjdhl8 has already been downloaded
+[K[download] 100% of 3.92MiB
