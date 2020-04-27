@@ -82,7 +82,7 @@ std::string vlc::checkOnPlayer(){
         addToRequestList(standByPlaylist.front());
         standByPlaylist.push_back(standByPlaylist.front());
         standByPlaylist.erase(standByPlaylist.begin());
-        return "Stand by playlist, você pode adicionar uma música usando: \"!add (<yt-link>|nome_da_música)";
+        return "Stand by playlist, você pode adicionar uma música usando: !add (<yt-link>|nome_da_música)";
     }
     return "";
 }

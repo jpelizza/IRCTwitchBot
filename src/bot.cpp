@@ -348,7 +348,7 @@ void bot::Cplaylist(struct msg latestMsg){
             msg += " and more "+ std::to_string(player.requestList.size()-3) + " other songs!";
     }
     else{
-        msg = "The playlist is empty! go ahead and use !add <yt-link> to add a song!";
+        msg = "A playlist esta vazia, adiciona uma música com: !add (<yt-link>|nome da música)";
     }
     sendprivmsg(msg);
     return;

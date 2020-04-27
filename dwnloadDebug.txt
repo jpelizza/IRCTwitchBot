@@ -1,4 +1,4 @@
-[youtube] mB_tNDjdhl8: Downloading webpage
-[youtube] Downloading just video mB_tNDjdhl8 because of --no-playlist
-[download] ./music/mB_tNDjdhl8 has already been downloaded
-[K[download] 100% of 3.92MiB
+[youtube] 6MlieyhZ0n4: Downloading webpage
+[youtube] Downloading just video 6MlieyhZ0n4 because of --no-playlist
+[download] Destination: ./music/6MlieyhZ0n4
+[K[download]   0.0% of 4.74MiB at 918.80KiB/s ETA 00:05[K[download]   0.1% of 4.74MiB at  2.41MiB/s ETA 00:01[K[download]   0.1% of 4.74MiB at  5.21MiB/s ETA 00:00[K[download]   0.3% of 4.74MiB at 10.36MiB/s ETA 00:00[K[download]   0.6% of 4.74MiB at 12.62MiB/s ETA 00:00[K[download]   1.3% of 4.74MiB at 11.81MiB/s ETA 00:00[K[download]   2.6% of 4.74MiB at  6.29MiB/s ETA 00:00[K[download]   5.3% of 4.74MiB at  6.65MiB/s ETA 00:00[K[download]  10.5% of 4.74MiB at  8.15MiB/s ETA 00:00[K[download]  21.1% of 4.74MiB at  9.15MiB/s ETA 00:00[K[download]  42.2% of 4.74MiB at  9.85MiB/s ETA 00:00[K[download]  84.3% of 4.74MiB at 10.22MiB/s ETA 00:00[K[download] 100.0% of 4.74MiB at  7.08MiB/s ETA 00:00[K[download] 100% of 4.74MiB in 00:00
