@@ -1,6 +1,28 @@
 #ifndef VLC
 #define VLC
 
+#if defined(_WIN32)
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0600
+#endif
+#include <winsock2.h>
+#include <ws2tcpip.h>
+
+#include <vlc/vlc.h>
+#include <unistd.h>
+#include <fstream>
+#include <iostream>
+#include <regex>
+#include <tuple>
+#include <list>
+#include <vector>
+#include <random>
+#include <algorithm>
+#include <iterator>
+#include <iostream>
+#pragma comment(lib, "ws2_32.lib")
+
+#else
 
 #include <unistd.h>
 #include <vlc/vlc.h>
@@ -17,6 +39,10 @@
 #include <algorithm>
 #include <iterator>
 #include <iostream>
+
+#endif
+
+
 
 
 class vlc{

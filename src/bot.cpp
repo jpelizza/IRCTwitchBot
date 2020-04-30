@@ -162,12 +162,6 @@ void bot::hostCommandChecker(std::string hostCommand){
     if(!hostCommand.compare("+playlist")){
         HCplaylist();
     }
-    else if(!hostCommand.substr(0,7).compare("+remove")){
-        HCremoveFromPlaylist(atoi(hostCommand.substr(7).c_str()));
-    }
-    else if(!hostCommand.substr(0,12).compare("+changeOrder")){
-        HCchangeOrder(hostCommand.substr(12));
-    }
     else if(!hostCommand.compare("+skip")){
         HCskip();
     }
@@ -180,18 +174,37 @@ void bot::hostCommandChecker(std::string hostCommand){
     else if(!hostCommand.substr(0,4).compare("+vol")){
         HCvolume(hostCommand.substr(5));
     }
+    else if(!hostCommand.substr(0,7).compare("+remove")){
+        HCremoveFromPlaylist(atoi(hostCommand.substr(7).c_str()));
+    }
+    else if(!hostCommand.substr(0,12).compare("+changeOrder")){
+        HCchangeOrder(hostCommand.substr(13));
+    }
     return;
 }
 
 void bot::HCchangeOrder(std::string hostCommand){
-    /*
     auxInt = 0;
     size_t separator = hostCommand.find(' ');
     int toChange = atoi(hostCommand.substr(0,separator).c_str());
     int changeTo = atoi(hostCommand.substr(separator).c_str());
-    std::cout << hostCommand.substr(0,separator) << " " << hostCommand.substr(separator) << std::endl;
+    if(toChange==changeTo) return;
+    std::cout << toChange << " " << changeTo << std::endl;
     std::tuple<std::string,std::string> auxTuple;
-    */
+
+
+    for(auto it = player.requestList.begin(); it!=player.requestList.end();auxInt++,it++){
+        if(auxInt==toChange){
+            auxTuple = *(it);
+            auxInt=0;
+            for(auto jt = player.requestList.begin(); jt!=player.requestList.end();auxInt++,jt++)
+            if(auxInt==changeTo){
+                player.requestList.erase(it++);
+                player.requestList.insert(jt++,auxTuple);
+            }
+        }
+    }
+    
 }
 void bot::HCplaylist(){
     auxInt = 0;
@@ -230,7 +243,7 @@ A few check fucntions to keep track on raffle and vlc player
 void bot::checkers(){
     title = player.checkOnPlayer();
     if(title!=""){
-        sendprivmsg(std::string("Now playing: " + title));
+        sendprivmsg(std::string("Tocando agora: " + title));
     }
     checkOnRaffle();
 }
@@ -344,8 +357,9 @@ void bot::Cplaylist(struct msg latestMsg){
         for(auto it=player.requestList.begin();it!=player.requestList.end() && auxInt<3;it++,auxInt++){
             msg += std::get<1>(*it) + " ; ";
         }
-        if(player.requestList.size()-3>0)
-            msg += " and more "+ std::to_string(player.requestList.size()-3) + " other songs!";
+        if((int(player.requestList.size()) - 3) > 0){
+            msg += " e mais "+ std::to_string(player.requestList.size()-std::size_t(3)) + " outras!";
+        }
     }
     else{
         msg = "A playlist esta vazia, adiciona uma música com: !add (<yt-link>|nome da música)";

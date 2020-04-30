@@ -1,0 +1,23 @@
+CXXFLAGS = -std=c++17 -Wall
+LDFLAGS = -g -lvlc -pthread
+
+SRC :=  $(shell find src -name "*.cpp")
+SRCNAME = $(notdir $(SRC))
+SRCOBJ = $(SRCNAME:%.cpp=%.o)
+
+
+all: main
+	@ echo "> done :)"
+	@ echo "> run \"./bot"
+
+main: $(SRCOBJ)
+	@ echo "> Compiling: project"
+	@i686-w64-mingw32-g++ $(CXXFLAGS) -o bin/bot_win $(addprefix obj/,$(SRCOBJ)) $(LDFLAGS)
+
+$(SRCOBJ): $(SRC)
+	@ echo "> Compiling: "$(@:%.o=%.cpp)
+	@i686-w64-mingw32-g++ $(CXXFLAGS) -o obj/$@ -c $(filter %/$(@:%.o=%.cpp), $^) $(LDFLAGS)
+
+.PHONY: clean
+clean:
+	rm -f obj/*.o bin/bot

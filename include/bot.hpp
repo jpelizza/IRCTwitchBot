@@ -9,6 +9,14 @@
 #endif
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <string>
+#include <unistd.h>
+#include <errno.h>
+#include <iostream>
+#include <vector>
+#include <stdio.h>
+#include "vlc.hpp"
+#include "env.hpp"
 #pragma comment(lib, "ws2_32.lib")
 
 #else
@@ -20,7 +28,6 @@
 #include <unistd.h>
 #include <errno.h>
 #include <iostream>
-#include <string.h>
 #include <vector>
 #include <stdio.h>
 #include "vlc.hpp"
@@ -67,7 +74,7 @@ class bot{
     std::list<std::string> mods;
 
     //DEV INFO
-    bool devMode = true;
+    bool devMode = false;
     bool chatMode =false;
 
     //USEFUL

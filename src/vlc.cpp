@@ -20,11 +20,9 @@ int vlc::addToRequestList(std::string url){
     std::cmatch ccopy(c);
 
     for(unsigned i=0; i<ccopy.size(); i++){
-        std::cout << ccopy[i].length() << std::endl;
         if(ccopy[i].length()==11) url = ccopy[i];
     }
 
-    std::cout << url.size() << std::endl;
     //if not URL
     if(url.size()!=11){
         url = searchByName(url);
@@ -82,7 +80,14 @@ std::string vlc::checkOnPlayer(){
         addToRequestList(standByPlaylist.front());
         standByPlaylist.push_back(standByPlaylist.front());
         standByPlaylist.erase(standByPlaylist.begin());
-        return "Stand by playlist, você pode adicionar uma música usando: !add (<yt-link>|nome_da_música)";
+        if(cont < 5){
+            cont++;
+            return "";
+        }
+        else{
+            cont = 0;
+            return "Stand by playlist, você pode adicionar uma música usando: !add (<yt-link>|nome_da_música)";
+        }
     }
     return "";
 }
@@ -95,12 +100,18 @@ void vlc::vlcPlay(std::string url){
 
     for(int i=0;(!exists(std::string("./music/") + url) && i<5);i++){
         sleep(2);
-        std::cout << i << std::endl;
     }
+    #if defined(_WIN32)
+    if(!exists(std::string(".\\music\\")+url)){
+        return;
+    }
+    m = libvlc_media_new_path (inst, (std::string(".\\music\\")+ url).c_str());
+    #else
     if(!exists(std::string("./music/") + url)){
         return;
     }
     m = libvlc_media_new_path (inst, (std::string("./music/") + url).c_str());
+    #endif
     mp = libvlc_media_player_new_from_media (m);
     libvlc_media_release (m);
     libvlc_media_player_play (mp);
@@ -128,7 +139,11 @@ bool vlc::exists(std::string name){
     return myfile.good();
 }
 void vlc::vlcDownload(std::string url){
+    #if defined(_WIN32)
+    std::string command = "youtube-dl -f 'bestaudio[filesize<10M]' -o .\\music\\"+url+" "+"\""+url+"\""+" --no-playlist --geo-bypass --no-cache-dir > dwnloadDebug.txt";
+    #else
     std::string command = "youtube-dl -f 'bestaudio[filesize<10M]' -o ./music/"+url+" "+"\""+url+"\""+" --no-playlist --geo-bypass --no-cache-dir > dwnloadDebug.txt";
+    #endif
     system(command.c_str());
     return;
 }
@@ -141,5 +156,4 @@ void vlc::getStandByPlaylist(){
     }
     std::mt19937 g(rd());
     std::shuffle(standByPlaylist.begin(),standByPlaylist.end(),g);
-    std::cout << standByPlaylist.size() << std::endl;
 }
