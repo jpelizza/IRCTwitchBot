@@ -7,7 +7,7 @@ Twitch IRC bot written in C++ using Barkley's sockets with windows winsock suppo
 | ------ | ------ |
 | !dice | rolls 1d20 |
 | !pau | rolls 1d20 |
-| !add (<yt-link> or song name) | adds video to vlc playlist |
+| !add (yt-link or song name) | adds video to vlc playlist |
 
 # IRC TWITC(++)H BOT Host commands
 
