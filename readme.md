@@ -12,6 +12,7 @@ Twitch IRC bot written in C++ using Barkley's sockets with windows winsock suppo
 # IRC TWITC(++)H BOT Host commands
 
 | Host command | What it does |
+| ------ | ------ |
 | +play | starts playlist |
 | +stop | stops playlist |
 | +skip | skips video on vlc |
