@@ -81,6 +81,7 @@ class vlc{
     void vlcChangeVolume(int);
     void getStandByPlaylist();
     std::string searchByName(std::string);
+    void getTime();
 
 
     

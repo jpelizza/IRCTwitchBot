@@ -76,7 +76,7 @@ std::string vlc::checkOnPlayer(){
         requestList.pop_front();
         return title;
     }
-    else if(requestList.size() <= 0 && ableToPlay){
+    else if(requestList.size() <= 0 && ableToPlay && standByPlaylist.size() > 0){
         addToRequestList(standByPlaylist.front());
         standByPlaylist.push_back(standByPlaylist.front());
         standByPlaylist.erase(standByPlaylist.begin());
@@ -140,9 +140,9 @@ bool vlc::exists(std::string name){
 }
 void vlc::vlcDownload(std::string url){
     #if defined(_WIN32)
-    std::string command = "youtube-dl -f 'bestaudio[filesize<10M]' -o .\\music\\"+url+" "+"\""+url+"\""+" --no-playlist --geo-bypass --no-cache-dir > dwnloadDebug.txt";
+    std::string command = "youtube-dl -f 'bestaudio[filesize<10M]' -o .\\music\\"+url+" "+"\""+url+"\""+" --no-playlist --geo-bypass --no-cache-dir --abort-on-unavailable-fragment --quiet --no-warnings --ignore-errors > dwnloadDebug.txt";
     #else
-    std::string command = "youtube-dl -f 'bestaudio[filesize<10M]' -o ./music/"+url+" "+"\""+url+"\""+" --no-playlist --geo-bypass --no-cache-dir > dwnloadDebug.txt";
+    std::string command = "youtube-dl -f 'bestaudio[filesize<10M]' -o ./music/"+url+" "+"\""+url+"\""+" --no-playlist --geo-bypass --no-cache-dir --abort-on-unavailable-fragment --quiet --no-warnings --ignore-errors > dwnloadDebug.txt";
     #endif
     system(command.c_str());
     return;
@@ -156,4 +156,11 @@ void vlc::getStandByPlaylist(){
     }
     std::mt19937 g(rd());
     std::shuffle(standByPlaylist.begin(),standByPlaylist.end(),g);
+}
+
+/*is music is longer then 5 minutes it'll skip after 5 minutes*/
+void vlc::getTime(){
+    if(libvlc_media_player_get_time(mp) > 300000){
+        vlcSkip();
+    }
 }

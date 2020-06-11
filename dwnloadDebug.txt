@@ -1,4 +1,0 @@
-[youtube] wWClRSjTSZg: Downloading webpage
-[youtube] Downloading just video wWClRSjTSZg because of --no-playlist
-[download] Destination: ./music/wWClRSjTSZg
-[K[download]   0.0% of 4.20MiB at 249.85KiB/s ETA 00:17[K[download]   0.1% of 4.20MiB at 717.71KiB/s ETA 00:06[K[download]   0.2% of 4.20MiB at  1.59MiB/s ETA 00:02[K[download]   0.3% of 4.20MiB at  3.29MiB/s ETA 00:01[K[download]   0.7% of 4.20MiB at  1.29MiB/s ETA 00:03[K[download]   1.5% of 4.20MiB at  1.74MiB/s ETA 00:02[K[download]   3.0% of 4.20MiB at  2.11MiB/s ETA 00:01[K[download]   5.9% of 4.20MiB at  3.17MiB/s ETA 00:01[K[download]  11.9% of 4.20MiB at  4.45MiB/s ETA 00:00[K[download]  23.8% of 4.20MiB at  3.43MiB/s ETA 00:00[K[download]  47.6% of 4.20MiB at  5.41MiB/s ETA 00:00[K[download]  95.2% of 4.20MiB at  7.21MiB/s ETA 00:00[K[download] 100.0% of 4.20MiB at  7.37MiB/s ETA 00:00[K[download] 100% of 4.20MiB in 00:00

@@ -30,8 +30,11 @@
 #include <iostream>
 #include <vector>
 #include <stdio.h>
+#include <curl/curl.h>
+#include <json/json.h>
 #include "vlc.hpp"
 #include "env.hpp"
+#include "nc.hpp"
 
 #endif
 
@@ -60,7 +63,9 @@ class bot{
         
     //BOT'S INFO
     std::string channel;
-    
+    std::string oauth;
+    std::string clientID;
+    std::string userID;
     //NETOWORK VARIABLES
     SOCKET socket_peer;
     struct addrinfo hints;
@@ -80,6 +85,8 @@ class bot{
     //USEFUL
     int bytes_recv = 0;
     int auxInt;
+    std::string localCommand;
+    int followCount=-1;
     
     //MESSAGES
         std::string msg;
@@ -104,6 +111,7 @@ class bot{
     std::string title;
 
     vlc player;
+    ncBotWindow ncWin;
 
     public: //functions
     //CONSTRUCTOR
@@ -126,6 +134,9 @@ class bot{
     void HCplay();
     void HCstop();
     void HCskip();
+    int HCviewerCount();
+    void HCnewFollow();
+    void startupIDandFollow();
     //TEXT COMMANDS
     void sendprivmsg(std::string);
     void Cdice(struct msg);

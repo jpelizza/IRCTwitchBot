@@ -1,5 +1,5 @@
 CXXFLAGS = -std=c++17 -Wall
-LDFLAGS = -g -lvlc -pthread
+LDFLAGS = -g -lvlc -pthread -lncursesw -lcurl -ljsoncpp
 
 SRC :=  $(shell find src -name "*.cpp")
 SRCNAME = $(notdir $(SRC))

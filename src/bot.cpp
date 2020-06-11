@@ -1,5 +1,6 @@
 #include "../include/bot.hpp"
 
+static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
 
 bot::bot(){
     memset(&hints,0,sizeof(hints));
@@ -39,18 +40,11 @@ bot::bot(){
     //STATUP
     srand (time(NULL));
     raffleIsOn = false;
-    
+    time(&pingTimer);
     //MODS
-    mods.push_back("jpelizza");
-    mods.push_back("uneaseplacebo");
-    mods.push_back("ricardostoklosa");
-    mods.push_back("tteknahlowg");
-    mods.push_back("manakithegreat");
-    mods.push_back("alucard27xxx");
-    mods.push_back("utechhh");
-    
     env = new Env();
     login();
+    startupIDandFollow();
 }
 void bot::login(){
     char pass[4096]  = "PASS ";
@@ -64,6 +58,7 @@ void bot::login(){
     strcat(join,(env->getValue("CHANNEL")).c_str());
     
     channel = env->getValue("CHANNEL");
+    oauth = std::string(env->getValue("OAUTH"));
     privmsg = privmsg + std::string(channel) + std::string(" :");
     
     strcat(join,"\n");
@@ -131,7 +126,6 @@ void bot::loop(){
             //CLEAN CHAR ARRAY
             memset(&read, 0, sizeof(read));
         }
-
         //CHECK PEER_SOCKET TO SEE IF IT HAS ANYTHING TO SEND
         #if defined(_WIN32)
         if(_kbhit()){
@@ -139,7 +133,7 @@ void bot::loop(){
         if(FD_ISSET(0, &reads)){
         #endif
             char read[4096];
-            if(!fgets(read, 4096, stdin));
+            // if(!fgets(read, 4096, stdin)) break;
             if(read[0]=='+'){
                 hostCommandChecker(std::string(read));
             }
@@ -158,18 +152,26 @@ void bot::loop(){
     checks for local host commands
 */
 void bot::hostCommandChecker(std::string hostCommand){
-    hostCommand.pop_back();
+    if(hostCommand[hostCommand.size()]=='\n')hostCommand.pop_back();
     if(!hostCommand.compare("+playlist")){
         HCplaylist();
     }
     else if(!hostCommand.compare("+skip")){
         HCskip();
     }
-    else if(!hostCommand.compare("+stop")){
+    else if(!hostCommand.compare("+stop") && player.ableToPlay == true){
         HCstop();
     }
     else if(!hostCommand.compare("+play")){
-        HCplay();
+        if(player.ableToPlay == false){
+            HCplay();
+        }
+        else{
+            HCstop();
+        }
+    }
+    else if(!hostCommand.compare("+refresh")){
+        ncWin.refreshAll();
     }
     else if(!hostCommand.substr(0,4).compare("+vol")){
         HCvolume(hostCommand.substr(5));
@@ -180,8 +182,113 @@ void bot::hostCommandChecker(std::string hostCommand){
     else if(!hostCommand.substr(0,12).compare("+changeOrder")){
         HCchangeOrder(hostCommand.substr(13));
     }
+    else if(!hostCommand.compare("+viewerCount")){
+        HCviewerCount();
+    }
     return;
 }
+
+void bot::startupIDandFollow(){
+
+    CURL *curl;
+    std::string readBuffer;
+    Json::CharReaderBuilder rBuilder;
+    Json::Value root;
+    JSONCPP_STRING errs;
+    struct curl_slist* headers = NULL;
+    curl = curl_easy_init();
+    if(curl) {
+        std::string uri = "https://id.twitch.tv/oauth2/validate";
+        headers = curl_slist_append(headers, ("Authorization: OAuth " + oauth.substr(6)).c_str() );
+        curl_easy_setopt(curl, CURLOPT_URL, uri.c_str());
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+        curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
+
+        std::stringstream s(readBuffer);
+        Json::parseFromStream(rBuilder, s, &root, &errs);
+        clientID = root.get("client_id",root).asString();
+        userID = root.get("user_id",root).asString();
+    }
+}
+
+int bot::HCviewerCount(){
+    CURL *curl;
+    std::string readBuffer;
+    Json::CharReaderBuilder rBuilder;
+    Json::Value root; 
+    JSONCPP_STRING errs;
+    curl = curl_easy_init();
+    if(curl) {
+        std::string uri = "http://tmi.twitch.tv/group/user/"+ channel.substr(1) +"/chatters";
+        curl_easy_setopt(curl, CURLOPT_URL, uri.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+        curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
+
+        std::stringstream s(readBuffer);
+        Json::parseFromStream(rBuilder, s, &root, &errs);
+        
+        if(!devMode)ncWin.refreshViewerCount(root.get("chatter_count",root).asString(), followCount);
+    }
+    return -1;
+}
+
+static int parseNumber(std::string clientID,std::string userID, Json::Value *name){
+    CURL *curl;
+    std::string readBuffer;
+    Json::CharReaderBuilder rBuilder;
+    Json::Value root;
+    struct curl_slist* headers = NULL;
+    JSONCPP_STRING errs;
+    curl = curl_easy_init();
+    if(curl) {
+        std::string uri = "https://api.twitch.tv/kraken/channels/"+ userID +"/follows";
+        headers = curl_slist_append(headers, "Accept: application/vnd.twitchtv.v5+json");
+        headers = curl_slist_append(headers, ("Client-ID: " + clientID).c_str());
+        curl_easy_setopt(curl, CURLOPT_URL, uri.c_str());
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+        curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
+
+
+        std::stringstream s(readBuffer);
+        Json::parseFromStream(rBuilder, s, &root, &errs);
+        *name = root;
+        return root.get("_total",root).asInt();
+    }
+    return -1;
+}
+
+void bot::HCnewFollow(){
+    Json::Value name;  
+    if(followCount==-1){
+        followCount = parseNumber(clientID,userID,&name); 
+    }
+    else{
+        int currentFollowCount = parseNumber(clientID,userID,&name);
+        if(followCount < currentFollowCount){
+            for(int i = 0; i < currentFollowCount - followCount;i++){
+                ncWin.printInfo("New follow:\n" +name.get("follows",name)[i].get("user",name).get("display_name",name).asString(),1);
+                followCount = currentFollowCount;
+            }
+        }
+        else if(followCount > currentFollowCount){
+            followCount = currentFollowCount; /* :'C */
+        }
+    }
+}
+
+static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp){
+    ((std::string*)userp)->append((char*)contents, size * nmemb);
+    return size * nmemb;
+}
+
 
 void bot::HCchangeOrder(std::string hostCommand){
     auxInt = 0;
@@ -241,11 +348,22 @@ void bot::HCstop(){
 A few check fucntions to keep track on raffle and vlc player
 */
 void bot::checkers(){
+    localCommand = ncWin.commandEvent();
+    if(localCommand!=""){
+        hostCommandChecker(localCommand);
+    }
     title = player.checkOnPlayer();
+    if(player.state == 3)player.getTime();
     if(title!=""){
         sendprivmsg(std::string("Tocando agora: " + title));
     }
     checkOnRaffle();
+    if(difftime(time(NULL),pingTimer) > 4){
+        hostCommandChecker("+viewerCount");
+        time(&pingTimer);
+    }
+    ncWin.printPlaylist(player.requestList);
+    HCnewFollow();
 }
 
 /*
@@ -255,7 +373,7 @@ msgCheck(std::string @_msg)
 void bot::msgCheck(std::string msgRecv){
     latestMsg = msgManager(msgRecv);
     
-        if(latestMsg.text[0] == '!'){
+    if(latestMsg.text[0] == '!'){
         if(!latestMsg.text.compare("!dice")){
             Cdice(latestMsg);
         }
@@ -265,7 +383,7 @@ void bot::msgCheck(std::string msgRecv){
         else if(!latestMsg.text.compare("!playlist")){
             Cplaylist(latestMsg);
         }
-        else if(!latestMsg.text.substr(0,4).compare("!add")){
+        else if(!latestMsg.text.substr(0,4).compare("!add") || !latestMsg.text.substr(0,5).compare("!play") || !latestMsg.text.substr(0,3).compare("!sr")){
             Crequest(latestMsg);
         }
         else if(!latestMsg.text.substr(0,4).compare("!raf")){
@@ -287,11 +405,11 @@ returns struct msg with user and text filtered
 struct msg bot::msgManager(std::string msgRecv){
     latestMsg.user = msgRecv.substr(1,std::string(msgRecv).find('!')-1);
     latestMsg.text = msgRecv.substr(std::string(msgRecv).find(" :")+2);
+    ncWin.printChat(latestMsg.user + ": " + latestMsg.text);
     if(chatMode) std::cout << latestMsg.user <<" : " << latestMsg.text << std::endl;
     //string fix
     latestMsg.text.pop_back();
     return latestMsg;
-
 }
 /*
 isAdm(std::string @_s)
@@ -312,11 +430,13 @@ bool bot::isAdm(std::string user){
 void bot::Cdice(struct msg latestMsg){
     msg ="@" + latestMsg.user + " rolled " +
                         std::to_string((rand()%20)+1);
+    ncWin.printInfo(msg,0);
     sendprivmsg(msg);
 }
 void bot::Cdick(struct msg latestMsg){
     msg ="@" + latestMsg.user + " tem " +
                             std::to_string((rand()%20)+1) + "cm de pinto";
+    ncWin.printInfo(msg,0);
     sendprivmsg(msg);
 }
 void bot::Craffle(struct msg latestMsg){
@@ -345,6 +465,8 @@ void bot::Crequest(struct msg latestMsg){
         break;
     default:
         msg = "@" + latestMsg.user + " Música adicionada a playlist sucesso!!";
+        ncWin.printPlaylist(player.requestList);
+        ncWin.printInfo(latestMsg.user + " added: \n" +player.title.substr(0,(2*ncWin.col/5)-4) + "\nto the playlist",0);
         break;
     }
     sendprivmsg(msg);
