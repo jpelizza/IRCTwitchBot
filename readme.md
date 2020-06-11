@@ -15,8 +15,9 @@ Click play/stop to play/stop song request playlist.
 Click skip to skip current song.
 Click from 0-9 to change volume.
 
-blob: https://ibb.co/Qcd4y32
-blob: https://ibb.co/d0cvJVy
+
+![Chat](https://i.ibb.co/X48qcrh/index.jpg)
+![Host](https://i.ibb.co/PZYyzP8/index2.jpg)
 
 # "Gambiarra"
 Brazilian term meaning something that's working but definitely isn't correct
