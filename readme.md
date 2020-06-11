@@ -1,4 +1,5 @@
-Currently the dev branch only compiles on linux
+Only works on linux!
+Pre requisites: JsonCPP, curl and the latest version of youtube-dl
 # IRCTwitchBot
 Twitch IRC bot written in C++ using Barkley's sockets with windows winsock support
 # IRC TWITC(++)H BOT Chat Commands
@@ -10,21 +11,13 @@ Twitch IRC bot written in C++ using Barkley's sockets with windows winsock suppo
 | !add (yt-link or song name) | adds video to vlc playlist |
 
 # IRC TWITC(++)H BOT Host commands
+Click play/stop to play/stop song request playlist.
+Click skip to skip current song.
+Click from 0-9 to change volume.
 
-| Host command | What it does |
-| ------ | ------ |
-| +play | starts playlist |
-| +stop | stops playlist |
-| +skip | skips video on vlc |
-| +vol INT | changes volume on vlc |
-| +playlist | show's playlist |
-| +changeOrder X Y | changes playlist order|
+blob: https://ibb.co/Qcd4y32
+blob: https://ibb.co/d0cvJVy
 
-
-# Roadmap :
-  
-  - windows edition
-  - front-end (nCurses(?)
 # "Gambiarra"
 Brazilian term meaning something that's working but definitely isn't correct
 
