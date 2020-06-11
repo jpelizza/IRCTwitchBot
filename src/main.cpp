@@ -1,11 +1,9 @@
-#include <iostream>
-#include "../include/bot.hpp"
-#include "../include/env.hpp"
+#include "../include/main.hpp"
 
-using namespace std;
-
-int main(void){
+int main(int argc, char *argv[]){
+    setlocale(LC_ALL, "");
     bot t = bot();
     t.loop();
+    endwin();
     return 0;
 }

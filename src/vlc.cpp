@@ -20,13 +20,14 @@ int vlc::addToRequestList(std::string url){
     std::cmatch ccopy(c);
 
     for(unsigned i=0; i<ccopy.size(); i++){
-        std::cout << ccopy[i].length() << std::endl;
         if(ccopy[i].length()==11) url = ccopy[i];
     }
 
-    std::cout << url.size() << std::endl;
-    if(url.size()!=11) return 1;
-
+    //if not URL
+    if(url.size()!=11){
+        url = searchByName(url);
+    }
+    //else if URL
     for(auto i=requestList.begin();i!=requestList.end();i++){
         if(!std::get<0>(*i).compare(url.c_str())){
             return 2;
@@ -39,10 +40,19 @@ int vlc::addToRequestList(std::string url){
     myfile.open("title.txt", std::ios::out | std::ios::app | std::ios::binary);
     getline(myfile,title);
     myfile.close();
-    std::cout << title << std::endl;
     requestList.push_back(std::make_tuple(url,title));
     return -1;
 }
+
+std::string vlc::searchByName(std::string url){
+    std::string search;
+    system(std::string("youtube-dl ytsearch:\"" + url + "\" --get-id > title.txt").c_str());
+    myfile.open("title.txt", std::ios::out | std::ios::app | std::ios::binary);
+    getline(myfile,search);
+    myfile.close();
+    return search;
+}
+
 /*
 getTitle(std::string @_s)
 requests youtube-dl for a title then streams it to title.txt
@@ -66,10 +76,18 @@ std::string vlc::checkOnPlayer(){
         requestList.pop_front();
         return title;
     }
-    else if(requestList.size() <= 0 && ableToPlay){
+    else if(requestList.size() <= 0 && ableToPlay && standByPlaylist.size() > 0){
         addToRequestList(standByPlaylist.front());
         standByPlaylist.push_back(standByPlaylist.front());
         standByPlaylist.erase(standByPlaylist.begin());
+        if(cont < 5){
+            cont++;
+            return "";
+        }
+        else{
+            cont = 0;
+            return "Stand by playlist, você pode adicionar uma música usando: !add (<yt-link>|nome_da_música)";
+        }
     }
     return "";
 }
@@ -80,10 +98,20 @@ if after 5 seconds the file is not found moves
 */
 void vlc::vlcPlay(std::string url){
 
-    for(int i=0;!(exists(std::string("./music/") + url) && i<5);i++){
-        usleep(100000);
+    for(int i=0;(!exists(std::string("./music/") + url) && i<5);i++){
+        sleep(2);
+    }
+    #if defined(_WIN32)
+    if(!exists(std::string(".\\music\\")+url)){
+        return;
+    }
+    m = libvlc_media_new_path (inst, (std::string(".\\music\\")+ url).c_str());
+    #else
+    if(!exists(std::string("./music/") + url)){
+        return;
     }
     m = libvlc_media_new_path (inst, (std::string("./music/") + url).c_str());
+    #endif
     mp = libvlc_media_player_new_from_media (m);
     libvlc_media_release (m);
     libvlc_media_player_play (mp);
@@ -111,9 +139,12 @@ bool vlc::exists(std::string name){
     return myfile.good();
 }
 void vlc::vlcDownload(std::string url){
-    std::string command = "youtube-dl -f 'bestaudio[filesize<15M]' -o ./music/" + url + " " + url + " --no-playlist --geo-bypass";
+    #if defined(_WIN32)
+    std::string command = "youtube-dl -f 'bestaudio[filesize<10M]' -o .\\music\\"+url+" "+"\""+url+"\""+" --no-playlist --geo-bypass --no-cache-dir --abort-on-unavailable-fragment --quiet --no-warnings --ignore-errors > dwnloadDebug.txt";
+    #else
+    std::string command = "youtube-dl -f 'bestaudio[filesize<10M]' -o ./music/"+url+" "+"\""+url+"\""+" --no-playlist --geo-bypass --no-cache-dir --abort-on-unavailable-fragment --quiet --no-warnings --ignore-errors > dwnloadDebug.txt";
+    #endif
     system(command.c_str());
-    system("youtube-dl --rm-cache-dir");
     return;
 }
 void vlc::getStandByPlaylist(){
@@ -125,5 +156,11 @@ void vlc::getStandByPlaylist(){
     }
     std::mt19937 g(rd());
     std::shuffle(standByPlaylist.begin(),standByPlaylist.end(),g);
-    std::cout << standByPlaylist.size() << std::endl;
+}
+
+/*is music is longer then 5 minutes it'll skip after 5 minutes*/
+void vlc::getTime(){
+    if(libvlc_media_player_get_time(mp) > 300000){
+        vlcSkip();
+    }
 }
